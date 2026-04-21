@@ -50,11 +50,33 @@ def run_agent(task):
         
         print(f"Agent: {content}")
         
-        if "Final Answer:" in content:
-            # Write output to file for GitHub Action to pick up
+    if "Final Answer:" in content:
+        # Check if task specifies an output path
+        output_path = "agent_output.txt"
+        if "save results to " in task.lower():
+            try:
+                # Simple extraction of path after "save results to "
+                parts = task.lower().split("save results to ")
+                if len(parts) > 1:
+                    potential_path = parts[1].split(" ")[0].strip()
+                    if potential_path:
+                        output_path = potential_path
+            except:
+                pass
+        
+        # Write output to file
+        try:
+            os.makedirs(os.path.dirname(os.path.abspath(output_path)), exist_ok=True)
+            with open(output_path, "w", encoding="utf-8") as f:
+                f.write(content)
+            print(f"Final answer saved to {output_path}")
+        except Exception as e:
+            print(f"Error saving output to {output_path}: {e}")
+            # Fallback to default
             with open("agent_output.txt", "w", encoding="utf-8") as f:
                 f.write(content)
-            return content
+                
+        return content
         
         # Look for tool calls in the content
         # Format expected: ```tool_call {"tool": "...", "args": {...}} ```
