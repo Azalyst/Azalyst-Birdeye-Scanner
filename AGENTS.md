@@ -99,25 +99,30 @@ You have access to the following tools. Call them using this exact JSON format i
 - **list_dir(path: str)** — List files in a directory.
 - **search(pattern: str, path: str = ".")** — grep -r for a pattern in path.
 
-### Birdeye Whale Tracking Tools
+### Birdeye / On-Chain
 
-- **track_whale(wallet_address: str, api_key: str = None)** — Add whale wallet to tracking list and analyze holdings. Returns total portfolio value, top held tokens, and recent activity.
+All Birdeye tools accept an optional `chain` parameter. Default is `solana`. Supported chains: solana, ethereum, base, arbitrum, bsc, avalanche, polygon, optimism, zksync.
 
-- **find_pumps(api_key: str = None)** — Scan for potential pump tokens using hidden gem filters. Returns top 10 tokens scored 0-100 based on volume spike, holder growth, liquidity, and security. Pre-filters high-risk tokens (rug risk >= 50).
+| Tool | Key Args | Output | Endpoint |
+|---|---|---|---|
+| `find_pumps` | `chain` | Top 10 scored candidates (0-100) | `/defi/trending_tokens` |
+| `analyze_token` | `token_address`, `chain` | Signal type, confidence %, indicators | `/defi/token_overview` |
+| `track_whale` | `wallet_address`, `chain` | Portfolio breakdown, top holdings | `/v1/wallet/token_list` |
+| `daily_scan` | `chains` (list, optional) | Full report across all specified chains | Multiple |
+| `get_profitable_traders` | `chain`, `time_frame` | Top 20 traders by PnL, volume, trades | `/trader/gainers-losers` |
+| `get_wallet_pnl` | `wallet_address`, `chain` | Realized/unrealized PnL, win rate | `/wallet/v2/pnl/summary` |
+| `get_top_traders` | `token_address`, `chain` | Top 10 traders per token by volume | `/defi/v2/tokens/top_traders` |
+| `check_token_security` | `token_address`, `chain` | Rug risk score, mint/freeze flags | `/defi/token_security` |
+| `get_new_listings` | `chain`, `limit` | Freshly listed tokens with age | `/defi/v2/tokens/new_listing` |
+| `get_token_creation_info` | `token_address`, `chain` | Deployer, creation time, initial supply | `/defi/token_creation_info` |
+| `get_holder_list` | `token_address`, `chain` | Top holders with balance % | `/defi/v3/token/holder` |
+| `get_wallet_pnl_details` | `wallet_address`, `chain` | Token-by-token PnL breakdown | `/wallet/v2/pnl/details` |
+| `get_trader_txs` | `wallet_address`, `chain` | Trade history with time filtering | `/trader/txs/seek_by_time` |
+| `get_ohlcv` | `token_address`, `timeframe` | Candle data (1s-1d intervals) | `/defi/v3/ohlcv` |
+| `get_wallet_token_list` | `wallet_address`, `chain` | Current holdings with USD values | `/v1/wallet/token_list` |
+| `get_wallet_tx_list` | `wallet_address`, `chain` | Full transaction history | `/v1/wallet/tx_list` |
 
-- **analyze_token(token_address: str, api_key: str = None)** — Deep analysis for pump/dump signals. Returns signal type ("pump" or "dump"), confidence (0-100%), and list of indicators (green/red flags).
-
-- **daily_scan(api_key: str = None, chains: List[str] = None)** — Run complete daily whale tracking workflow. Returns comprehensive report with trending analysis, whale trades, hidden gems, watchlist updates, profitable traders per chain, and security alerts. Saves structured JSON to `reports/daily_scan_YYYYMMDD_HHMMSS.json`.
-
-- **get_profitable_traders(chain: str = "solana", time_frame: str = "7D", api_key: str = None)** — Get leaderboard of most profitable traders (gainers). Returns top 20 traders sorted by PnL with wallet address, PnL, volume, and trade count. Calls `/trader/gainers-losers`.
-
-- **get_wallet_pnl(wallet_address: str, chain: str = "solana", api_key: str = None)** — Get detailed PnL summary for a wallet. Returns realized_profit, unrealized_profit, win_rate, and total_trades. Calls `/wallet/v2/pnl/summary`.
-
-- **get_top_traders(token_address: str, chain: str = "solana", time_frame: str = "24h", api_key: str = None)** — Get top traders for a specific token. Returns top 10 traders sorted by volume with wallet, volume, PnL, buy/sell counts. Calls `/defi/v2/tokens/top_traders`.
-
-- **check_token_security(token_address: str, chain: str = "solana", api_key: str = None)** — Check token security and calculate rug risk score. Returns risk level (LOW/MEDIUM/HIGH), is_mintable, freeze_authority, top_10_holder_percent, and list of risk factors. Calls `/defi/token_security`.
-
-**Note:** Birdeye tools require `BIRDEYE_API_KEY` environment variable or pass api_key parameter. All functions accept optional `chain` parameter (default: "solana"). Supported chains: solana, ethereum, base, arbitrum, bsc, avalanche, polygon, optimism, zksync.
+**Note:** Birdeye tools require `BIRDEYE_API_KEY` environment variable or pass api_key parameter.
 
 ---
 
