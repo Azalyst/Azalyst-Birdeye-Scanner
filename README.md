@@ -1,6 +1,24 @@
-# Azalyst ETF Intelligence — Whale Tracking Agent
+# Azalyst — Multi-Chain Whale Tracking Agent
 
-Automated on-chain intelligence system for Solana. Runs on GitHub Actions. No external services required beyond API keys. Scans every 4 hours, saves structured reports, and exposes a monitoring dashboard for operational visibility.
+Automated on-chain intelligence across 9 chains. Runs on GitHub Actions. Scans every 4 hours, commits structured reports, and surfaces pump/dump signals for manual review via a monitoring dashboard.
+
+**Dashboard:** [azalyst.github.io/birdeye.so/dashboard.html](https://azalyst.github.io/birdeye.so/dashboard.html?repo=Azalyst/birdeye.so)
+
+---
+
+## Chains Supported
+
+| Chain | Identifier |
+|---|---|
+| Solana | `solana` |
+| Ethereum | `ethereum` |
+| Base | `base` |
+| Arbitrum | `arbitrum` |
+| BNB Chain | `bnb` |
+| Avalanche | `avalanche` |
+| Polygon | `polygon` |
+| Optimism | `optimism` |
+| zkSync | `zksync` |
 
 ---
 
@@ -9,50 +27,55 @@ Automated on-chain intelligence system for Solana. Runs on GitHub Actions. No ex
 ```
 GitHub Actions
   ├── agent.yml              — On-demand agent (workflow_dispatch + issue comments)
-  └── whale_tracking.yml     — Scheduled scans (every 4 hours, cron: 0 */4 * * *)
+  └── whale_tracking.yml     — Scheduled scans (cron: 0 */4 * * *)
 
 agent/
-  ├── agent.py               — ReAct loop: Think → Tool → Observe → Repeat
-  ├── tools.py               — Tool dispatcher (bash, file I/O, Birdeye)
-  └── birdeye_tracker.py     — Birdeye API wrapper + signal logic
+  ├── agent.py               — ReAct loop: Think → Tool → Observe → Repeat (15 iter cap)
+  ├── tools.py               — Tool dispatcher with chain routing
+  └── birdeye_tracker.py     — Birdeye API wrapper, signal logic, multi-chain
 
-reports/                     — Scan output committed automatically after each run
-dashboard.html               — Operational monitoring UI (GitHub Pages compatible)
+reports/                     — Scan output, auto-committed after each run
+dashboard.html               — Operational monitoring UI (GitHub Pages)
 ```
 
-The agent operates as a ReAct loop with a 15-iteration cap. On each iteration it either executes a tool call or emits a Final Answer. Tool results are fed back as observations. All workflow output is committed to `reports/` by the bot.
+---
+
+## Dashboard
+
+**Live:** [azalyst.github.io/birdeye.so/dashboard.html](https://azalyst.github.io/birdeye.so/dashboard.html?repo=Azalyst/birdeye.so)
+
+The dashboard reads directly from the GitHub API. No backend, no server. What it shows:
+
+- **System status** — last run result, success rate across last 10 runs, next scheduled scan time
+- **Workflow run history** — every agent and whale tracker run with timestamp, trigger, duration, and pass/fail
+- **Activity feed** — chronological log of all agent events
+- **Report browser** — list of all files in `reports/`, click any to read contents inline
+
+For private repositories, add a GitHub Personal Access Token in the dashboard Config panel. It is stored in memory only and never persisted or transmitted anywhere other than the GitHub API.
 
 ---
 
 ## Setup
 
-### 1. Repository Secrets
+### Secrets
 
-Navigate to `Settings → Secrets and variables → Actions → New repository secret`.
+`Settings → Secrets and variables → Actions → New repository secret`
 
-| Secret | Required | Source |
+| Secret | Required | Get From |
 |---|---|---|
-| `NIM_API_KEY` | Yes | [build.nvidia.com](https://build.nvidia.com) |
-| `BIRDEYE_API_KEY` | Recommended | [birdeye.so](https://birdeye.so) |
+| `NIM_API_KEY` | Yes | [build.nvidia.com](https://build.nvidia.com) — free tier |
+| `BIRDEYE_API_KEY` | Recommended | [birdeye.so](https://birdeye.so) — free tier |
 
-Without `BIRDEYE_API_KEY` the agent will run but Birdeye API calls will be rate-limited or unauthenticated.
-
-### 2. Actions Permissions
+### Actions Permissions
 
 `Settings → Actions → General → Workflow permissions → Read and write permissions`
 
-Required for the bot to commit scan reports back to the repository.
+Required so the bot can commit scan reports back to the repository.
 
-### 3. Install Dependencies (local)
+### Dependencies
 
 ```bash
 pip install -r requirements.txt
-```
-
-```
-openai>=1.0.0
-python-dotenv
-requests>=2.31.0
 ```
 
 ---
@@ -61,112 +84,103 @@ requests>=2.31.0
 
 ### Scheduled (Automatic)
 
-The whale tracking workflow runs every 4 hours without any intervention. Reports are saved to `reports/` and committed automatically.
+Whale tracking runs every 4 hours with no intervention. Reports saved and committed to `reports/` automatically.
 
-### On-Demand via GitHub Actions UI
+### On-Demand — GitHub Actions UI
 
-`Actions → NIM Qwen Agent → Run workflow → Enter task`
+`Actions → NIM Qwen Agent → Run workflow`
 
-Example tasks:
 ```
-daily_scan and save results to reports/scan_manual.md
-find_pumps
-analyze_token token_address=<ADDRESS>
-track_whale wallet_address=<ADDRESS>
+daily_scan
+daily_scan chains=["solana","ethereum"]
+find_pumps chain=ethereum
+analyze_token token_address=<ADDRESS> chain=base
+track_whale wallet_address=<ADDRESS> chain=arbitrum
 ```
 
-### On-Demand via Issue Comment
-
-Post a comment on any issue in the repository:
+### On-Demand — Issue Comment
 
 ```
 /agent daily_scan
-/agent find_pumps
-/agent analyze_token token_address=<ADDRESS>
-/agent track_whale wallet_address=<ADDRESS>
+/agent find_pumps chain=solana
+/agent analyze_token token_address=<ADDRESS> chain=ethereum
+/agent track_whale wallet_address=<ADDRESS> chain=bnb
+/agent daily_scan chains=["solana","base","arbitrum"]
 ```
-
-```
-/whale daily
-/whale find_pumps
-/whale analyze_token
-```
-
-The bot will respond with a comment linking to the workflow run.
 
 ### Local
 
 ```bash
 export NIM_API_KEY=your_key
-export BIRDEYE_API_KEY=your_key   # optional
+export BIRDEYE_API_KEY=your_key
 
-python agent/agent.py "daily_scan and save results to reports/test.md"
+python agent/agent.py "daily_scan chains=['solana','ethereum']"
 python example_whale_tracking.py daily
 python example_whale_tracking.py pumps
-python example_whale_tracking.py track <WALLET_ADDRESS>
-python example_whale_tracking.py analyze <TOKEN_ADDRESS>
+python example_whale_tracking.py track <WALLET> <CHAIN>
+python example_whale_tracking.py analyze <TOKEN> <CHAIN>
 ```
 
 ---
 
-## Available Tools
-
-The agent selects tools autonomously based on the task. All tools are defined in `agent/tools.py`.
+## Tools
 
 ### Core
 
-| Tool | Description |
-|---|---|
-| `bash(cmd)` | Run any shell command in the Actions runner |
-| `read_file(path)` | Read a file from the repository |
-| `write_file(path, content)` | Write or overwrite a file |
-| `list_dir(path)` | List directory contents up to 3 levels |
-| `search(pattern, path)` | grep -rn across the repository |
+| Tool | Args | Description |
+|---|---|---|
+| `bash` | `cmd` | Run shell command in Actions runner |
+| `read_file` | `path` | Read file from repository |
+| `write_file` | `path`, `content` | Write file |
+| `list_dir` | `path` | Directory listing, 3 levels deep |
+| `search` | `pattern`, `path` | grep -rn across repository |
 
 ### Birdeye / On-Chain
 
-| Tool | Description | Key Output |
+All Birdeye tools accept an optional `chain` parameter. Default is `solana`.
+
+| Tool | Key Args | Output |
 |---|---|---|
-| `find_pumps()` | Scans trending tokens for early pump signals | Top 10 scored 0–100 |
-| `analyze_token(token_address)` | Deep pump/dump signal analysis for a single token | Signal type, confidence %, indicators |
-| `track_whale(wallet_address)` | Adds wallet to watchlist, returns portfolio breakdown | Holdings, top tokens, recent activity |
-| `daily_scan()` | Full workflow: trending analysis + whale trades + hidden gems + watchlist | Formatted report |
+| `find_pumps` | `chain` | Top 10 scored candidates (0-100) |
+| `analyze_token` | `token_address`, `chain` | Signal type, confidence %, indicators |
+| `track_whale` | `wallet_address`, `chain` | Portfolio breakdown, top holdings |
+| `daily_scan` | `chains` (list, optional) | Full report across all specified chains |
+
+`daily_scan` with no `chains` argument scans all 9 supported chains.
 
 ---
 
 ## Signal Methodology
 
-### Pump Indicators (Green Flags)
+### Pump Indicators
 
 | Signal | Threshold |
 |---|---|
-| Smart wallet accumulation | 3+ distinct whale addresses buying |
-| Volume spike | 10x relative to 24h average in 1 hour |
+| Smart wallet accumulation | 3+ whale addresses buying |
+| Volume spike | 10x the hourly average in 1 hour |
 | Holder growth | 500+ new holders in 24 hours |
-| LP stability | Liquidity pool unchanged or growing |
-| Distribution | Top 10 holders below 30% concentration |
+| LP stability | Liquidity unchanged or growing |
+| Distribution | Top 10 holders below 30% |
 
-### Dump Indicators (Red Flags)
+### Dump Indicators
 
 | Signal | Threshold |
 |---|---|
-| Whale outflows | Large sell volume exceeds buy volume 2:1 |
+| Whale outflows | Sell volume exceeds buy volume 2:1 |
 | LP contraction | Liquidity drops more than 20% |
-| Holder exodus | Holder count declining |
+| Holder exodus | Holder count declining 100+ in 24h |
 | Dev activity | Owner wallet executing sells |
 | Concentration | Top 10 holders above 50% |
 
-### Confidence Scoring
+### Confidence
 
-Confidence is the ratio of triggered indicators to total possible indicators (0–100%). A score above 70% is considered a strong signal in either direction. Between 40–70% requires additional confirmation. Below 40% is informational only.
+Ratio of triggered indicators to total possible (0-100%). Above 70% is a strong signal. 40-70% requires confirmation. Below 40% is informational.
 
-**This system surfaces candidates for manual review. It does not execute trades, manage positions, or provide financial advice.**
+**Signals are for manual review only. The system does not execute trades.**
 
----
+### Hidden Gem Filters
 
-## Hidden Gem Filters
-
-`find_pumps()` applies the following filters before scoring:
+Applied before scoring in `find_pumps`:
 
 | Filter | Value |
 |---|---|
@@ -176,52 +190,71 @@ Confidence is the ratio of triggered indicators to total possible indicators (0�
 | Mintable | No |
 | Top 10 holder concentration | Below 50% |
 
-Scoring weights: volume spike (30 pts), holder growth (30 pts), liquidity strength (20 pts), security checks (20 pts).
+Scoring: volume spike (30 pts) + holder growth (30 pts) + liquidity (20 pts) + security (20 pts).
 
 ---
 
-## Monitoring Dashboard
+## Reports
 
-`dashboard.html` is a self-contained HTML file that connects to the GitHub API to show:
-
-- System status and last run health
-- Full workflow run history with duration and trigger
-- Agent activity feed
-- Report file browser with inline viewer
-- Next scheduled run estimate
-
-**Usage:** Open in browser. Enter `owner/repository` in the header. For private repositories, add a GitHub Personal Access Token (PAT) in Config — it is stored in memory only and never persisted.
-
-**GitHub Pages:** Commit `dashboard.html` to the repository root and enable Pages. Access the dashboard at `https://<owner>.github.io/<repo>/dashboard.html?repo=<owner>/<repo>`.
-
----
-
-## Report Output
-
-Each scan saves a structured text file to `reports/` following the naming convention:
+Each scan saves to `reports/` using the naming convention:
 
 ```
 reports/whale_scan_YYYYMMDD_HHMMSS.txt
 reports/daily_scan_YYYYMMDD_HHMMSS.md
 ```
 
-Reports are committed to `main` automatically by `github-actions[bot]`. The `reports/` directory is browsable in the repository and readable in the monitoring dashboard.
+Committed automatically by `github-actions[bot]` after every successful run. Readable in the dashboard report browser without leaving the page.
+
+---
+
+## Costs
+
+| Service | Cost |
+|---|---|
+| GitHub Actions | Free (public repo: unlimited minutes) |
+| GitHub API | Free (60 req/hr unauthenticated, 5,000 with token) |
+| NVIDIA NIM | Free tier with signup credits |
+| Birdeye API | Free tier available, no credit card required |
+
+Private repo Actions minutes: 2,000 free/month. At 6 runs/day x ~2 min each = ~360 min/month, within the free tier.
 
 ---
 
 ## Agent Loop
 
-The agent follows a ReAct protocol with a hard 15-iteration limit:
-
 ```
-Thought  →  parse task, identify required tool
-Action   →  emit tool_call JSON block
-Observe  →  receive tool output, update context
-Repeat   →  until task complete or limit reached
-Final Answer: <result>
+Thought   →  parse task, identify required tool
+Action    →  emit tool_call JSON
+Observe   →  receive tool output
+Repeat    →  until Final Answer or 15-iteration cap
 ```
 
-If no tool call and no Final Answer is emitted after 5 iterations, the agent aborts with a diagnostic message. The loop will not retry a failed tool call with identical arguments.
+Tool calls execute first on every iteration. Final Answer check runs only after confirming no tool call is present. The loop aborts with a diagnostic message if neither a tool call nor a Final Answer is produced after 5 iterations.
+
+---
+
+## Security
+
+- API keys stored as encrypted GitHub Secrets, injected at runtime, never logged or committed
+- All issue and PR comment content treated as untrusted input
+- Dashboard connects to GitHub API only — no third-party data transmission
+- Agent will not run destructive git operations without explicit instruction
+
+---
+
+## Troubleshooting
+
+**Reports contain placeholder text instead of real data**
+Fixed in current `agent.py`. The original code had a logic inversion where the Final Answer check ran before tool dispatch, making tools unreachable.
+
+**Birdeye tools return empty results**
+Verify `BIRDEYE_API_KEY` is set in repository secrets. Without a key, public endpoints are rate-limited aggressively. Test locally: `python example_whale_tracking.py daily`.
+
+**Workflow fails with permission error**
+`Settings → Actions → General → Workflow permissions → Read and write permissions`.
+
+**Dashboard shows no data**
+Enter repo as `owner/repository` exactly (case-sensitive). For private repos, add a GitHub PAT in the Config panel.
 
 ---
 
@@ -229,62 +262,28 @@ If no tool call and no Final Answer is emitted after 5 iterations, the agent abo
 
 ```
 .
-├── .github/
-│   └── workflows/
-│       ├── agent.yml                 — On-demand agent workflow
-│       └── whale_tracking.yml        — Scheduled scan workflow
+├── .github/workflows/
+│   ├── agent.yml                  — On-demand agent
+│   └── whale_tracking.yml         — Scheduled scans
 ├── agent/
-│   ├── agent.py                      — Main ReAct loop
-│   ├── tools.py                      — Tool implementations
-│   └── birdeye_tracker.py            — Birdeye API + signal logic
-├── reports/                          — Generated scan output (auto-committed)
-├── dashboard.html                    — Operational monitoring UI
-├── example_whale_tracking.py         — Standalone local test runner
-├── requirements.txt                  — Python dependencies
-├── AGENTS.md                         — Agent behavior specification
-├── BIRDEYE_USAGE.md                  — Birdeye workflow reference
-└── README.md                         — This file
+│   ├── agent.py                   — ReAct loop
+│   ├── tools.py                   — Tool dispatcher
+│   └── birdeye_tracker.py         — Birdeye + signal logic (multi-chain)
+├── reports/                       — Auto-committed scan output
+├── dashboard.html                 — Monitoring UI
+├── example_whale_tracking.py      — Local test runner
+├── requirements.txt               — Python dependencies
+├── AGENTS.md                      — Agent behavior spec
+├── BIRDEYE_USAGE.md               — Birdeye workflow reference
+└── README.md                      — This file
 ```
 
 ---
 
-## Troubleshooting
+## Disclaimer
 
-**Workflow fails with permission error**
-Enable read and write permissions: `Settings → Actions → General → Workflow permissions`.
-
-**NIM_API_KEY not found**
-Verify the secret is named exactly `NIM_API_KEY` in repository secrets.
-
-**Birdeye tools return empty results**
-Confirm `BIRDEYE_API_KEY` is set. Without a key, public endpoints are subject to aggressive rate limiting. Test the key locally before committing.
-
-**Reports contain placeholder text instead of real data**
-This was caused by a logic inversion in `agent.py` where the Final Answer check ran before tool calls were dispatched. Fixed in the current version — the tool execution block now runs first on every iteration.
-
-**Workflow does not trigger on issue comments**
-Check `Settings → Actions → General → Allow all actions and reusable workflows`.
+This system is for informational and educational purposes only. Signals are heuristic-based and have not been backtested. Past signal performance does not predict future results. Do not make investment decisions based solely on this output. Manage risk independently.
 
 ---
 
-## Limitations
-
-- Birdeye public API coverage is limited without an authenticated key.
-- Signal confidence is heuristic-based. No backtesting framework is included.
-- The agent runs on GitHub-hosted runners with a 6-hour job timeout. Long-running daily scans should complete well within this limit.
-- `daily_scan()` calls multiple Birdeye endpoints in sequence. If rate limits are hit, partial data may be returned without error.
-
----
-
-## Security
-
-- API keys are stored as encrypted GitHub Secrets and injected at runtime. They are never written to logs, files, or committed to the repository.
-- All issue and PR comment content is treated as untrusted input.
-- The agent will not execute destructive git operations (force push, branch deletion) without explicit instruction.
-- The dashboard connects to the GitHub public API only. No data is sent to any third party.
-
----
-
-## License
-
-MIT. Use at your own risk. This system does not constitute financial advice.
+*Powered by [Birdeye](https://birdeye.so) and [NVIDIA NIM](https://build.nvidia.com).*
