@@ -1,0 +1,11 @@
+ts,chain,address,symbol,label,pump_score,dump_score,anomaly_score,smart_money_score,risk_score,reasons
+2026-04-23T05:06:25+00:00,solana,GdKt6aeiMMmCP6jpEes7Fz6kUxceLEqiKVcogQG6MGfP,YOLO,watch,66.0,0.0,65.0,30.0,0.0,sudden_rise_price_plus_volume
+2026-04-23T05:06:25+00:00,solana,5jJcaf3aggYy9chaRHgacAe16ZgSaDhc1GR2fukTpGKy,JACK,watch,63.2,2.0,65.0,28.4,8.0,sudden_rise_price_plus_volume;risk:low_holder_count
+2026-04-23T05:06:25+00:00,solana,D6LJSEoFpmAiFcikujLCgrV6XFeaLd1Roj5pc1mPmG7F,PLZWORK,watch,48.14,2.0,62.58,28.4,8.0,sudden_rise_price_plus_volume;risk:low_holder_count
+2026-04-23T05:06:25+00:00,solana,AWDgk6fovWRLcMEfritnSgV5agdMUG2MGA2yynjCLEno,SCUBACAT,watch,43.38,0.0,50.82,30.0,0.0,sudden_rise_price_plus_volume
+2026-04-23T05:06:25+00:00,solana,87puLzRSs1tJqQcV6X1NfTCSZ34nixHZ5xohYMVhdtcF,SCAMBODIA,watch,34.91,2.0,41.99,28.4,8.0,risk:low_holder_count
+2026-04-23T05:06:25+00:00,solana,9pEUdnus7jUYM1CBLSuhYFDmuGDZZMBQNuPb9mbTMKeE,SOCK,watch,27.2,2.48,30.75,28.4,8.0,risk:low_holder_count
+2026-04-23T05:06:25+00:00,solana,43bwYkb89xxZb5GLG6K1yHw3BQvhXV17yXcFYiiCsmq4,00,watch,27.2,2.0,30.0,28.04,8.0,risk:low_holder_count
+2026-04-23T05:06:25+00:00,solana,EeuquUTuBJhbWGjH1QiJ8cgSeRdKibNJrTnnNx4vLFr,DustCoin,watch,27.2,2.0,30.0,28.4,8.0,risk:low_holder_count
+2026-04-23T05:06:25+00:00,solana,AcRjXgbNbuyTafRvq5xLvYoge1ni7DuuFNBuYZED9zsv,Red Bull,watch,23.0,5.0,30.0,26.0,20.0,risk:thin_liquidity;risk:low_holder_count
+2026-04-23T05:06:25+00:00,solana,9FK1ttoX1yzDkpw9FUgvQWZUijBPy4DKWhuzqtXKSPzP,发财2,watch,25.8,3.0,30.0,27.6,12.0,risk:thin_liquidity

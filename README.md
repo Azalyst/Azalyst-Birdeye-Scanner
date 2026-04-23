@@ -123,6 +123,21 @@ python example_whale_tracking.py track <WALLET> <CHAIN>
 python example_whale_tracking.py analyze <TOKEN> <CHAIN>
 ```
 
+### Quant Signal Engine
+
+For continuous data collection and ML-style pump/dump scoring, run the direct quant scanner:
+
+```bash
+python quant_signal_engine.py scan --chains solana,base,ethereum --limit 40
+python quant_signal_engine.py loop --chains solana,base --limit 40 --interval 300
+python quant_signal_engine.py signals --show 50
+python quant_signal_engine.py evaluate --horizon-min 60 --target-pct 10
+```
+
+It stores every snapshot in `data/birdeye_quant.db` and writes ranked JSON/CSV reports to `reports/`.
+GitHub Actions runs `.github/workflows/quant_signal_engine.yml` every 15 minutes when `BIRDEYE_API_KEY` is configured as a repository secret. Optional `NIM_API_KEY` enables a Qwen analyst brief.
+See `QUANT_SIGNAL_ENGINE.md` for the full workflow.
+
 ---
 
 ## Tools

@@ -1,92 +1,116 @@
 name: Birdeye Whale Tracking Scan
 
 on:
-  # Manual trigger
   workflow_dispatch:
     inputs:
       scan_type:
-        description: 'Type of scan to run'
+        description: "Compatibility scan type"
         required: true
-        default: 'daily'
+        default: "daily"
         type: choice
         options:
           - daily
           - find_pumps
-          - analyze_token
-  
-  # Scheduled - runs every 4 hours
-  schedule:
-    - cron: '0 */4 * * *'  # Every 4 hours
-  
-  # Trigger from issue comments
+          - solana_only
+          - multi_chain
   issue_comment:
     types: [created]
+
+permissions:
+  contents: write
+  issues: write
 
 jobs:
   whale-tracking:
     runs-on: ubuntu-latest
-    if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule' || (github.event_name == 'issue_comment' && startsWith(github.event.comment.body, '/whale'))
-    
+    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'issue_comment' && startsWith(github.event.comment.body, '/whale'))
+    env:
+      BIRDEYE_API_KEY: ${{ secrets.BIRDEYE_API_KEY }}
+      NIM_API_KEY: ${{ secrets.NIM_API_KEY }}
+
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
-      
-      - name: Set up Python
-        uses: actions/setup-python@v4
         with:
-          python-version: '3.11'
-      
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
       - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run compatibility scan
         run: |
-          pip install -r requirements.txt
-      
-      - name: Run Birdeye Scan
-        env:
-          NIM_API_KEY: ${{ secrets.NIM_API_KEY }}
-          BIRDEYE_API_KEY: ${{ secrets.BIRDEYE_API_KEY }}
-        run: |
-          if [ "${{ github.event_name }}" = "schedule" ]; then
-            # Scheduled run - do daily scan
-            python agent/agent.py "run daily_scan and save results to reports/whale_scan_$(date +%Y%m%d_%H%M%S).txt"
-          elif [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            # Manual run with input
-            if [ "${{ inputs.scan_type }}" = "daily" ]; then
-                            python agent/agent.py "run daily_scan and save results to reports/daily_scan_$(date +%Y%m%d_%H%M%S).md"
-            elif [ "${{ inputs.scan_type }}" = "find_pumps" ]; then
-              python agent/agent.py "find_pumps and show top 10 potential pump tokens"
-            fi
-          elif [ "${{ github.event_name }}" = "issue_comment" ]; then
-            # Comment trigger
-            COMMENT="${{ github.event.comment.body }}"
-            TASK="${COMMENT#/whale }"
-            python agent/agent.py "$TASK"
+          if [ -z "$BIRDEYE_API_KEY" ]; then
+            echo "BIRDEYE_API_KEY secret is required"
+            exit 1
           fi
-      
+
+          CHAINS="solana,base"
+          LIMIT="20"
+
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            case "${{ inputs.scan_type }}" in
+              solana_only) CHAINS="solana"; LIMIT="25" ;;
+              multi_chain) CHAINS="solana,base,ethereum,arbitrum,bnb"; LIMIT="12" ;;
+              find_pumps) CHAINS="solana"; LIMIT="25" ;;
+              *) CHAINS="solana,base"; LIMIT="20" ;;
+            esac
+          elif [ "${{ github.event_name }}" = "issue_comment" ]; then
+            COMMENT="${{ github.event.comment.body }}"
+            if echo "$COMMENT" | grep -qi "multi"; then CHAINS="solana,base,ethereum,arbitrum,bnb"; LIMIT="12"; fi
+            if echo "$COMMENT" | grep -qi "solana"; then CHAINS="solana"; LIMIT="25"; fi
+          fi
+
+          python quant_signal_engine.py scan \
+            --chains "$CHAINS" \
+            --limit "$LIMIT" \
+            --trade-limit 50 \
+            --top-trader-limit 3 \
+            --evaluate \
+            --outcome-horizon-min 60 \
+            --outcome-target-pct 10 \
+            --qwen-brief \
+            --show 25
+
       - name: Commit scan results
-        if: success()
         run: |
           git config user.name "Whale Tracker Bot"
-          git config user.email "bot@github.com"
-          git add reports/ || true
-          git commit -m "🐋 Whale tracking scan - $(date +%Y-%m-%d)" || true
-          git push || true
-      
+          git config user.email "actions@github.com"
+
+          git add -f data/birdeye_quant.db || true
+          git add -f reports/latest_quant_signals.json reports/latest_quant_signals.csv || true
+          git add -f reports/latest_quant_outcomes.json reports/latest_quant_outcomes.csv || true
+          git add -f reports/latest_quant_brief.md || true
+          git add -f reports/quant_signals_*.json reports/quant_signals_*.csv || true
+          git add -f reports/quant_outcomes_*.json reports/quant_outcomes_*.csv || true
+          git add -f reports/quant_brief_*.md || true
+
+          git diff --staged --quiet && exit 0
+          git commit -m "Update whale quant scan"
+          git pull --rebase origin main || true
+          git push
+
       - name: Comment on issue
         if: github.event_name == 'issue_comment'
         uses: actions/github-script@v7
         with:
           script: |
             const fs = require('fs');
-            const output = fs.readFileSync('agent_output.txt', 'utf8');
+            let body = 'No quant report was generated.';
+            try {
+              const data = JSON.parse(fs.readFileSync('reports/latest_quant_signals.json', 'utf8'));
+              const rows = (data.signals || []).slice(0, 8).map(s =>
+                `- ${s.chain}/${s.symbol}: ${s.label} pump=${s.pump_score} dump=${s.dump_score} risk=${s.risk_score}`
+              );
+              body = `## Whale Quant Scan\n\n${rows.join('\n')}`;
+            } catch (e) {}
             github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: `## 🐋 Whale Tracking Results\n\n${output}`
+              body
             });
-
-# Example usage in issues:
-# /whale analyze_token token_address=EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v
-# /whale find_pumps
-# /whale track_whale wallet_address=7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU
-# /whale daily_scan

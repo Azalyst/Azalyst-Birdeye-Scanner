@@ -1,0 +1,291 @@
+{
+  "kind": "quant_signals",
+  "generated_at": "2026-04-23T05:07:24+00:00",
+  "snapshot_count": 10,
+  "errors": [],
+  "signals": [
+    {
+      "snapshot_id": 20,
+      "ts": "2026-04-23T05:06:25+00:00",
+      "chain": "solana",
+      "address": "GdKt6aeiMMmCP6jpEes7Fz6kUxceLEqiKVcogQG6MGfP",
+      "symbol": "YOLO",
+      "pump_score": 66.0,
+      "dump_score": 0.0,
+      "anomaly_score": 65.0,
+      "smart_money_score": 30.0,
+      "risk_score": 0.0,
+      "label": "watch",
+      "reasons": [
+        "sudden_rise_price_plus_volume"
+      ],
+      "metrics": {
+        "price": 9.271119172008699e-06,
+        "liquidity_usd": 9819.397941464911,
+        "price_change_1h_pct": 82.13344261803232,
+        "derived_price_change_pct": 0.0,
+        "volume_1h_usd": 6810497152.293632,
+        "hourly_volume_ratio": 24.0,
+        "buy_imbalance": 0.0,
+        "whale_net_usd": 0.0,
+        "liquidity_change_pct": 0.0,
+        "top_trader_pnl_usd": 0.0
+      }
+    },
+    {
+      "snapshot_id": 19,
+      "ts": "2026-04-23T05:06:25+00:00",
+      "chain": "solana",
+      "address": "5jJcaf3aggYy9chaRHgacAe16ZgSaDhc1GR2fukTpGKy",
+      "symbol": "JACK",
+      "pump_score": 63.2,
+      "dump_score": 2.0,
+      "anomaly_score": 65.0,
+      "smart_money_score": 28.4,
+      "risk_score": 8.0,
+      "label": "watch",
+      "reasons": [
+        "sudden_rise_price_plus_volume",
+        "risk:low_holder_count"
+      ],
+      "metrics": {
+        "price": 3.245888201178246e-05,
+        "liquidity_usd": 47753.03809380341,
+        "price_change_1h_pct": 55.067230248495406,
+        "derived_price_change_pct": 0.0,
+        "volume_1h_usd": 7038047950.037405,
+        "hourly_volume_ratio": 24.0,
+        "buy_imbalance": 0.0,
+        "whale_net_usd": 0.0,
+        "liquidity_change_pct": 0.0,
+        "top_trader_pnl_usd": 0.0
+      }
+    },
+    {
+      "snapshot_id": 12,
+      "ts": "2026-04-23T05:06:25+00:00",
+      "chain": "solana",
+      "address": "D6LJSEoFpmAiFcikujLCgrV6XFeaLd1Roj5pc1mPmG7F",
+      "symbol": "PLZWORK",
+      "pump_score": 48.14,
+      "dump_score": 2.0,
+      "anomaly_score": 62.58,
+      "smart_money_score": 28.4,
+      "risk_score": 8.0,
+      "label": "watch",
+      "reasons": [
+        "sudden_rise_price_plus_volume",
+        "risk:low_holder_count"
+      ],
+      "metrics": {
+        "price": 9.676172322951802e-06,
+        "liquidity_usd": 15799.82952292415,
+        "price_change_1h_pct": 23.27170075502824,
+        "derived_price_change_pct": 0.0,
+        "volume_1h_usd": 761506013.1174761,
+        "hourly_volume_ratio": 24.969565250845005,
+        "buy_imbalance": 0.0,
+        "whale_net_usd": 0.0,
+        "liquidity_change_pct": 0.0,
+        "top_trader_pnl_usd": 0.0
+      }
+    },
+    {
+      "snapshot_id": 18,
+      "ts": "2026-04-23T05:06:25+00:00",
+      "chain": "solana",
+      "address": "AWDgk6fovWRLcMEfritnSgV5agdMUG2MGA2yynjCLEno",
+      "symbol": "SCUBACAT",
+      "pump_score": 43.38,
+      "dump_score": 0.0,
+      "anomaly_score": 50.82,
+      "smart_money_score": 30.0,
+      "risk_score": 0.0,
+      "label": "watch",
+      "reasons": [
+        "sudden_rise_price_plus_volume"
+      ],
+      "metrics": {
+        "price": 0.0003794767117215272,
+        "liquidity_usd": 17015.189521134635,
+        "price_change_1h_pct": 14.868927630559565,
+        "derived_price_change_pct": 0.0,
+        "volume_1h_usd": 985156594.1907967,
+        "hourly_volume_ratio": 24.0,
+        "buy_imbalance": 0.0,
+        "whale_net_usd": 0.0,
+        "liquidity_change_pct": 0.0,
+        "top_trader_pnl_usd": 0.0
+      }
+    },
+    {
+      "snapshot_id": 16,
+      "ts": "2026-04-23T05:06:25+00:00",
+      "chain": "solana",
+      "address": "87puLzRSs1tJqQcV6X1NfTCSZ34nixHZ5xohYMVhdtcF",
+      "symbol": "SCAMBODIA",
+      "pump_score": 34.91,
+      "dump_score": 2.0,
+      "anomaly_score": 41.99,
+      "smart_money_score": 28.4,
+      "risk_score": 8.0,
+      "label": "watch",
+      "reasons": [
+        "risk:low_holder_count"
+      ],
+      "metrics": {
+        "price": 8.011995449874047e-06,
+        "liquidity_usd": 7318.145928339536,
+        "price_change_1h_pct": 8.562832462196623,
+        "derived_price_change_pct": 0.0,
+        "volume_1h_usd": 223984399.322349,
+        "hourly_volume_ratio": 24.0,
+        "buy_imbalance": 0.0,
+        "whale_net_usd": 0.0,
+        "liquidity_change_pct": 0.0,
+        "top_trader_pnl_usd": 0.0
+      }
+    },
+    {
+      "snapshot_id": 11,
+      "ts": "2026-04-23T05:06:25+00:00",
+      "chain": "solana",
+      "address": "9pEUdnus7jUYM1CBLSuhYFDmuGDZZMBQNuPb9mbTMKeE",
+      "symbol": "SOCK",
+      "pump_score": 27.2,
+      "dump_score": 2.48,
+      "anomaly_score": 30.75,
+      "smart_money_score": 28.4,
+      "risk_score": 8.0,
+      "label": "watch",
+      "reasons": [
+        "risk:low_holder_count"
+      ],
+      "metrics": {
+        "price": 3.367475269310032e-05,
+        "liquidity_usd": 59982.87398561697,
+        "price_change_1h_pct": -0.5375326006458051,
+        "derived_price_change_pct": 0.0,
+        "volume_1h_usd": 110542394.066162,
+        "hourly_volume_ratio": 24.0,
+        "buy_imbalance": 0.0,
+        "whale_net_usd": 0.0,
+        "liquidity_change_pct": 0.0,
+        "top_trader_pnl_usd": 0.0
+      }
+    },
+    {
+      "snapshot_id": 13,
+      "ts": "2026-04-23T05:06:25+00:00",
+      "chain": "solana",
+      "address": "43bwYkb89xxZb5GLG6K1yHw3BQvhXV17yXcFYiiCsmq4",
+      "symbol": "00",
+      "pump_score": 27.2,
+      "dump_score": 2.0,
+      "anomaly_score": 30.0,
+      "smart_money_score": 28.04,
+      "risk_score": 8.0,
+      "label": "watch",
+      "reasons": [
+        "risk:low_holder_count"
+      ],
+      "metrics": {
+        "price": 0.0010308075467568157,
+        "liquidity_usd": 0.0,
+        "price_change_1h_pct": 0.003055991106466062,
+        "derived_price_change_pct": 0.0,
+        "volume_1h_usd": 1018464.590235,
+        "hourly_volume_ratio": 24.0,
+        "buy_imbalance": 0.0,
+        "whale_net_usd": 0.0,
+        "liquidity_change_pct": 0.0,
+        "top_trader_pnl_usd": 0.0
+      }
+    },
+    {
+      "snapshot_id": 14,
+      "ts": "2026-04-23T05:06:25+00:00",
+      "chain": "solana",
+      "address": "EeuquUTuBJhbWGjH1QiJ8cgSeRdKibNJrTnnNx4vLFr",
+      "symbol": "DustCoin",
+      "pump_score": 27.2,
+      "dump_score": 2.0,
+      "anomaly_score": 30.0,
+      "smart_money_score": 28.4,
+      "risk_score": 8.0,
+      "label": "watch",
+      "reasons": [
+        "risk:low_holder_count"
+      ],
+      "metrics": {
+        "price": 0.0,
+        "liquidity_usd": 5758.954418670387,
+        "price_change_1h_pct": 0.0,
+        "derived_price_change_pct": 0.0,
+        "volume_1h_usd": 400891217.320577,
+        "hourly_volume_ratio": 24.0,
+        "buy_imbalance": 0.0,
+        "whale_net_usd": 0.0,
+        "liquidity_change_pct": 0.0,
+        "top_trader_pnl_usd": 0.0
+      }
+    },
+    {
+      "snapshot_id": 15,
+      "ts": "2026-04-23T05:06:25+00:00",
+      "chain": "solana",
+      "address": "AcRjXgbNbuyTafRvq5xLvYoge1ni7DuuFNBuYZED9zsv",
+      "symbol": "Red Bull",
+      "pump_score": 23.0,
+      "dump_score": 5.0,
+      "anomaly_score": 30.0,
+      "smart_money_score": 26.0,
+      "risk_score": 20.0,
+      "label": "watch",
+      "reasons": [
+        "risk:thin_liquidity",
+        "risk:low_holder_count"
+      ],
+      "metrics": {
+        "price": 0.0,
+        "liquidity_usd": 86.098516862144,
+        "price_change_1h_pct": 0.0,
+        "derived_price_change_pct": 0.0,
+        "volume_1h_usd": 500000000.0,
+        "hourly_volume_ratio": 24.0,
+        "buy_imbalance": 0.0,
+        "whale_net_usd": 0.0,
+        "liquidity_change_pct": 0.0,
+        "top_trader_pnl_usd": 0.0
+      }
+    },
+    {
+      "snapshot_id": 17,
+      "ts": "2026-04-23T05:06:25+00:00",
+      "chain": "solana",
+      "address": "9FK1ttoX1yzDkpw9FUgvQWZUijBPy4DKWhuzqtXKSPzP",
+      "symbol": "\u53d1\u8d222",
+      "pump_score": 25.8,
+      "dump_score": 3.0,
+      "anomaly_score": 30.0,
+      "smart_money_score": 27.6,
+      "risk_score": 12.0,
+      "label": "watch",
+      "reasons": [
+        "risk:thin_liquidity"
+      ],
+      "metrics": {
+        "price": 1.1583159471160622e-05,
+        "liquidity_usd": 1155.4610577133876,
+        "price_change_1h_pct": 0.0,
+        "derived_price_change_pct": 0.0,
+        "volume_1h_usd": 116454371.02911806,
+        "hourly_volume_ratio": 24.0,
+        "buy_imbalance": 0.0,
+        "whale_net_usd": 0.0,
+        "liquidity_change_pct": 0.0,
+        "top_trader_pnl_usd": 0.0
+      }
+    }
+  ]
+}

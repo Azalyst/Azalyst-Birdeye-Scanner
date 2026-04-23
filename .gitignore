@@ -45,6 +45,13 @@ target/
 # Reports
 reports/*.json
 reports/*.md
+reports/*.csv
+
+# Local quant database
+data/
+*.db
+*.db-shm
+*.db-wal
 
 # Coverage
 coverage/
