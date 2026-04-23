@@ -12,6 +12,7 @@ import csv
 import json
 import math
 import os
+import re
 import sqlite3
 import statistics
 import sys
@@ -25,6 +26,7 @@ import requests
 
 
 BASE_URL = "https://public-api.birdeye.so"
+BINANCE_FUTURES_EXCHANGE_INFO_URL = "https://fapi.binance.com/fapi/v1/exchangeInfo"
 DEFAULT_DB = Path("data") / "birdeye_quant.db"
 DEFAULT_REPORT_DIR = Path("reports")
 
@@ -39,6 +41,26 @@ SUPPORTED_CHAINS = {
     "polygon": "polygon",
     "optimism": "optimism",
     "zksync": "zksync",
+}
+
+DEFAULT_SCAN_CHAINS = [
+    "solana",
+    "ethereum",
+    "base",
+    "arbitrum",
+    "bnb",
+    "avalanche",
+    "polygon",
+    "optimism",
+    "zksync",
+]
+
+BINANCE_BASE_ASSET_ALIASES = {
+    "BTC": ["WBTC", "XBT"],
+    "ETH": ["WETH", "BETH"],
+    "BNB": ["WBNB"],
+    "SOL": ["WSOL"],
+    "DOGE": ["WDOGE"],
 }
 
 
@@ -114,15 +136,20 @@ def robust_z(value: float, sample: Sequence[float]) -> float:
 
 
 def parse_chains(raw: str) -> List[str]:
+    items = [item.strip().lower() for item in (raw or "").split(",") if item.strip()]
+    if not items or any(item in {"all", "*", "any"} for item in items):
+        return list(DEFAULT_SCAN_CHAINS)
+
     chains = []
-    for item in raw.split(","):
-        chain = item.strip().lower()
-        if not chain:
-            continue
+    seen = set()
+    for chain in items:
         if chain not in SUPPORTED_CHAINS:
             raise ValueError(f"Unsupported chain '{chain}'. Supported: {', '.join(SUPPORTED_CHAINS)}")
+        if chain in seen:
+            continue
+        seen.add(chain)
         chains.append(chain)
-    return chains or ["solana"]
+    return chains or list(DEFAULT_SCAN_CHAINS)
 
 
 def compact_address(address: str) -> str:
@@ -131,6 +158,85 @@ def compact_address(address: str) -> str:
     if len(address) <= 14:
         return address
     return f"{address[:6]}...{address[-4:]}"
+
+
+def normalize_symbol(value: Any) -> str:
+    return re.sub(r"[^A-Z0-9]", "", str(value or "").upper())
+
+
+class BinanceFuturesUniverse:
+    def __init__(self, timeout: int = 20):
+        self.timeout = timeout
+        self.session = requests.Session()
+        self._lookup: Dict[str, Dict[str, Any]] = {}
+
+    def refresh(self) -> Dict[str, Dict[str, Any]]:
+        response = self.session.get(
+            BINANCE_FUTURES_EXCHANGE_INFO_URL,
+            headers={"Accept": "application/json"},
+            timeout=self.timeout,
+        )
+        response.raise_for_status()
+        payload = response.json()
+        lookup: Dict[str, Dict[str, Any]] = {}
+
+        for item in payload.get("symbols", []):
+            if str(item.get("quoteAsset") or "").upper() != "USDT":
+                continue
+            if str(item.get("status") or "").upper() != "TRADING":
+                continue
+
+            base_asset = normalize_symbol(item.get("baseAsset"))
+            binance_symbol = str(item.get("symbol") or "")
+            if not base_asset or not binance_symbol:
+                continue
+
+            meta = {
+                "binance_usdt_futures": True,
+                "binance_symbol": binance_symbol,
+                "binance_base_asset": str(item.get("baseAsset") or ""),
+                "binance_contract_type": str(item.get("contractType") or ""),
+            }
+            self._register_lookup(lookup, base_asset, meta, "base_asset")
+
+            stripped = re.sub(r"^(?:1M|\d+)", "", base_asset)
+            if stripped and stripped != base_asset:
+                self._register_lookup(lookup, stripped, meta, "contract_multiplier")
+
+            for alias in BINANCE_BASE_ASSET_ALIASES.get(base_asset, []):
+                self._register_lookup(lookup, alias, meta, "wrapped_alias")
+
+        self._lookup = lookup
+        return lookup
+
+    def _register_lookup(
+        self,
+        lookup: Dict[str, Dict[str, Any]],
+        key: str,
+        meta: Dict[str, Any],
+        match_type: str,
+    ) -> None:
+        normalized = normalize_symbol(key)
+        if not normalized or normalized in lookup:
+            return
+        lookup[normalized] = {**meta, "binance_match_type": match_type}
+
+    def match_token(self, symbol: str) -> Optional[Dict[str, Any]]:
+        if not self._lookup:
+            self.refresh()
+
+        normalized = normalize_symbol(symbol)
+        if not normalized:
+            return None
+        if normalized in self._lookup:
+            return dict(self._lookup[normalized])
+
+        if normalized.startswith("W") and normalized[1:] in self._lookup:
+            match = dict(self._lookup[normalized[1:]])
+            match["binance_match_type"] = "wrapped_prefix"
+            return match
+
+        return None
 
 
 class BirdeyeClient:
@@ -195,6 +301,24 @@ class BirdeyeClient:
             chain,
             params={"sort_by": sort_by, "sort_type": "desc", "limit": limit},
         )
+        return normalize_list(data, ["tokens", "items", "data"])
+
+    def token_list(
+        self,
+        chain: str,
+        limit: int = 50,
+        sort_by: str = "v24hUSD",
+        min_liquidity: float = 0.0,
+    ) -> List[Dict[str, Any]]:
+        params = {
+            "sort_by": sort_by,
+            "sort_type": "desc",
+            "offset": 0,
+            "limit": min(max(limit, 1), 50),
+        }
+        if min_liquidity > 0:
+            params["min_liquidity"] = min_liquidity
+        data = self._request("GET", "/defi/tokenlist", chain, params=params)
         return normalize_list(data, ["tokens", "items", "data"])
 
     def new_listings(self, chain: str, limit: int = 50) -> List[Dict[str, Any]]:
@@ -594,6 +718,7 @@ class ScanResult:
     snapshot_ids: List[int]
     signals: List[Dict[str, Any]]
     errors: List[str]
+    metadata: Dict[str, Any]
 
 
 class FeatureBuilder:
@@ -831,6 +956,10 @@ class SignalScorer:
             "chain": snapshot["chain"],
             "address": snapshot["address"],
             "symbol": snapshot["symbol"],
+            "binance_usdt_futures": bool(snapshot.get("binance_usdt_futures")),
+            "binance_symbol": snapshot.get("binance_symbol", ""),
+            "binance_base_asset": snapshot.get("binance_base_asset", ""),
+            "binance_match_type": snapshot.get("binance_match_type", ""),
             "pump_score": round(pump_score, 2),
             "dump_score": round(dump_score, 2),
             "anomaly_score": round(anomaly_score, 2),
@@ -926,6 +1055,9 @@ class LiveScanner:
         store: QuantStore,
         whale_threshold_usd: float = 10_000.0,
         include_new_listings: bool = True,
+        binance_usdt_only: bool = False,
+        binance_universe: Optional[BinanceFuturesUniverse] = None,
+        binance_min_liquidity_usd: float = 5_000.0,
     ):
         self.client = client
         self.store = store
@@ -933,6 +1065,9 @@ class LiveScanner:
         self.scorer = SignalScorer()
         self.ml = CrossSectionalML()
         self.include_new_listings = include_new_listings
+        self.binance_usdt_only = binance_usdt_only
+        self.binance_universe = binance_universe
+        self.binance_min_liquidity_usd = binance_min_liquidity_usd
 
     def scan(
         self,
@@ -945,6 +1080,21 @@ class LiveScanner:
         snapshot_ids: List[int] = []
         signals: List[Dict[str, Any]] = []
         errors: List[str] = []
+        metadata = {
+            "scan_chains": list(chains),
+            "binance_usdt_only": bool(self.binance_usdt_only),
+            "binance_symbol_count": 0,
+            "binance_min_liquidity_usd": self.binance_min_liquidity_usd,
+        }
+
+        if self.binance_usdt_only:
+            if self.binance_universe is None:
+                self.binance_universe = BinanceFuturesUniverse(timeout=max(self.client.timeout, 15))
+            try:
+                metadata["binance_symbol_count"] = len(self.binance_universe.refresh())
+            except Exception as exc:
+                errors.append(f"binance futures universe fetch error: {exc}")
+                return ScanResult(snapshot_ids=snapshot_ids, signals=signals, errors=errors, metadata=metadata)
 
         for chain in chains:
             universe = self._discover_universe(chain, limit, errors)
@@ -963,6 +1113,13 @@ class LiveScanner:
                     snapshot = self.features.snapshot_from_payload(ts, chain, source, token_seed, overview, security)
                     if not snapshot["address"]:
                         continue
+                    if self.binance_usdt_only:
+                        match = self.binance_universe.match_token(snapshot["symbol"]) if self.binance_universe else None
+                        if not match:
+                            continue
+                        if to_float(snapshot["liquidity_usd"]) < self.binance_min_liquidity_usd:
+                            continue
+                        snapshot.update(match)
 
                     self.store.upsert_token(chain, snapshot["address"], snapshot["symbol"], snapshot["name"], ts)
                     snapshot_id = self.store.insert_snapshot(snapshot)
@@ -986,7 +1143,8 @@ class LiveScanner:
         for signal in signals:
             self.store.insert_signal(signal["snapshot_id"], signal)
         self.store.commit()
-        return ScanResult(snapshot_ids=snapshot_ids, signals=signals, errors=errors)
+        metadata["matched_signal_count"] = len(signals)
+        return ScanResult(snapshot_ids=snapshot_ids, signals=signals, errors=errors, metadata=metadata)
 
     def _discover_universe(
         self,
@@ -1002,8 +1160,37 @@ class LiveScanner:
                 address = self.features.token_address(token)
                 if not address or address in seen:
                     continue
+                if self.binance_usdt_only and self.binance_universe is not None:
+                    seed_symbol = str(first_value(token, ["symbol", "token_symbol"], "") or "")
+                    if seed_symbol and not self.binance_universe.match_token(seed_symbol):
+                        continue
                 seen.add(address)
                 out.append((token, source))
+
+        if self.binance_usdt_only:
+            liquid = self.client.token_list(
+                chain,
+                limit=max(limit, 25),
+                sort_by="liquidity",
+                min_liquidity=self.binance_min_liquidity_usd,
+            )
+            if liquid and "error" in liquid[0]:
+                errors.append(f"{chain}: token list liquidity error {liquid[0]}")
+            else:
+                add_many(liquid, "token_list_liquidity")
+
+            volume = self.client.token_list(
+                chain,
+                limit=max(limit, 25),
+                sort_by="v24hUSD",
+                min_liquidity=self.binance_min_liquidity_usd,
+            )
+            if volume and "error" in volume[0]:
+                errors.append(f"{chain}: token list volume error {volume[0]}")
+            else:
+                add_many(volume, "token_list_volume")
+
+            return out[: max(limit * 2, 25)]
 
         trending = self.client.token_trending(chain, limit=limit)
         if trending and "error" in trending[0]:
@@ -1182,6 +1369,7 @@ def write_reports(report_dir: Path, result: ScanResult, prefix: str = "quant_sig
         "generated_at": utc_now(),
         "snapshot_count": len(result.snapshot_ids),
         "errors": result.errors,
+        "filters": result.metadata,
         "signals": sorted_signals(result.signals, limit=len(result.signals)),
     }
     json_path.write_text(json.dumps(payload, indent=2, default=str), encoding="utf-8")
@@ -1191,7 +1379,8 @@ def write_reports(report_dir: Path, result: ScanResult, prefix: str = "quant_sig
     )
 
     fieldnames = [
-        "ts", "chain", "address", "symbol", "label", "pump_score", "dump_score",
+        "ts", "chain", "address", "symbol", "binance_symbol", "binance_base_asset",
+        "binance_match_type", "label", "pump_score", "dump_score",
         "anomaly_score", "smart_money_score", "risk_score", "reasons",
     ]
     with csv_path.open("w", newline="", encoding="utf-8") as f:
@@ -1204,6 +1393,9 @@ def write_reports(report_dir: Path, result: ScanResult, prefix: str = "quant_sig
                     "chain": signal["chain"],
                     "address": signal["address"],
                     "symbol": signal["symbol"],
+                    "binance_symbol": signal.get("binance_symbol", ""),
+                    "binance_base_asset": signal.get("binance_base_asset", ""),
+                    "binance_match_type": signal.get("binance_match_type", ""),
                     "label": signal["label"],
                     "pump_score": signal["pump_score"],
                     "dump_score": signal["dump_score"],
@@ -1327,6 +1519,9 @@ def run_scan(args: argparse.Namespace) -> int:
             store,
             whale_threshold_usd=args.whale_threshold,
             include_new_listings=not args.no_new_listings,
+            binance_usdt_only=args.binance_usdt_only,
+            binance_universe=BinanceFuturesUniverse(timeout=max(client.timeout, 15)) if args.binance_usdt_only else None,
+            binance_min_liquidity_usd=args.binance_min_liquidity_usd,
         )
         result = scanner.scan(
             chains=chains,
@@ -1445,7 +1640,7 @@ def build_parser() -> argparse.ArgumentParser:
     def add_common(p: argparse.ArgumentParser) -> None:
         p.add_argument("--db", default=str(DEFAULT_DB), help="SQLite database path")
         p.add_argument("--api-key", default=os.getenv("BIRDEYE_API_KEY"), help="Birdeye API key")
-        p.add_argument("--chains", default="solana", help="Comma-separated chains, e.g. solana,base,ethereum")
+        p.add_argument("--chains", default="all", help="Comma-separated chains or 'all'")
         p.add_argument("--limit", type=int, default=40, help="Token universe size per chain")
         p.add_argument("--trade-limit", type=int, default=100, help="Recent token trades to aggregate")
         p.add_argument("--top-trader-limit", type=int, default=8, help="Top traders per token, 0 disables")
@@ -1459,6 +1654,8 @@ def build_parser() -> argparse.ArgumentParser:
         p.add_argument("--outcome-target-pct", type=float, default=10.0, help="Return target for true/false outcomes")
         p.add_argument("--outcome-max-candidates", type=int, default=300, help="Max stored signals to evaluate")
         p.add_argument("--qwen-brief", action="store_true", help="Write an optional Qwen analyst brief when NIM_API_KEY is set")
+        p.add_argument("--binance-usdt-only", action="store_true", help="Keep only tokens that match Binance USDT futures symbols")
+        p.add_argument("--binance-min-liquidity-usd", type=float, default=5000.0, help="Drop Binance-matched tokens below this on-chain liquidity")
 
     scan = sub.add_parser("scan", help="Run one live scan and record snapshots")
     add_common(scan)

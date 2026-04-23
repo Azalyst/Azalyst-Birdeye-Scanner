@@ -6,11 +6,11 @@ on:
       chains:
         description: "Comma-separated chains"
         required: true
-        default: "solana,base"
+        default: "all"
       limit:
         description: "Token universe size per chain"
         required: true
-        default: "15"
+        default: "10"
       horizon_min:
         description: "Outcome check horizon in minutes"
         required: true
@@ -33,8 +33,8 @@ jobs:
   scan:
     runs-on: ubuntu-latest
     env:
-      CHAINS: ${{ github.event.inputs.chains || 'solana,base' }}
-      LIMIT: ${{ github.event.inputs.limit || '15' }}
+      CHAINS: ${{ github.event.inputs.chains || 'all' }}
+      LIMIT: ${{ github.event.inputs.limit || '10' }}
       HORIZON_MIN: ${{ github.event.inputs.horizon_min || '60' }}
       TARGET_PCT: ${{ github.event.inputs.target_pct || '10' }}
       BIRDEYE_API_KEY: ${{ secrets.BIRDEYE_API_KEY }}
@@ -61,11 +61,25 @@ jobs:
             exit 1
           fi
 
+          RESOLVED_CHAINS="$CHAINS"
+          if [ "$CHAINS" = "all" ]; then
+            SLOT=$(( ($(date -u +%M) / 15) % 3 ))
+            case "$SLOT" in
+              0) RESOLVED_CHAINS="solana,ethereum,base" ;;
+              1) RESOLVED_CHAINS="arbitrum,bnb,avalanche" ;;
+              2) RESOLVED_CHAINS="polygon,optimism,zksync" ;;
+            esac
+          fi
+
+          echo "Scanning chains: $RESOLVED_CHAINS"
+
           python quant_signal_engine.py scan \
-            --chains "$CHAINS" \
+            --chains "$RESOLVED_CHAINS" \
             --limit "$LIMIT" \
-            --trade-limit 50 \
-            --top-trader-limit 3 \
+            --trade-limit 20 \
+            --top-trader-limit 0 \
+            --min-delay 0.05 \
+            --binance-usdt-only \
             --evaluate \
             --outcome-horizon-min "$HORIZON_MIN" \
             --outcome-target-pct "$TARGET_PCT" \

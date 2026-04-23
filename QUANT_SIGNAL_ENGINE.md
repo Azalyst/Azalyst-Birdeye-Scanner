@@ -11,6 +11,7 @@ It records raw market snapshots into SQLite, aggregates trade behavior, and scor
 - anomaly watch using IsolationForest when `scikit-learn` is installed
 
 It does not scrape Birdeye web pages. Use the official API with `BIRDEYE_API_KEY`.
+For tradeable monitoring, use `--binance-usdt-only` to keep only tokens whose symbols match the live Binance USDT futures universe. The scanner also applies a minimum on-chain liquidity floor so same-symbol dust tokens do not flood the board.
 
 ## Install
 
@@ -29,7 +30,7 @@ $env:BIRDEYE_API_KEY="your_key_here"
 ## Run One Scan
 
 ```bash
-python quant_signal_engine.py scan --chains solana,base,ethereum --limit 40
+python quant_signal_engine.py scan --chains all --limit 40 --binance-usdt-only
 ```
 
 Outputs:
@@ -41,7 +42,7 @@ Outputs:
 ## Run Live
 
 ```bash
-python quant_signal_engine.py loop --chains solana,base --limit 40 --interval 300
+python quant_signal_engine.py loop --chains all --limit 40 --interval 300 --binance-usdt-only
 ```
 
 This scans every 5 minutes and appends new snapshots into the same database.
@@ -64,7 +65,7 @@ python quant_signal_engine.py outcomes --show 50
 When scanning, use `--evaluate` to run this automatically:
 
 ```bash
-python quant_signal_engine.py scan --chains solana,base --limit 30 --evaluate --outcome-horizon-min 60 --outcome-target-pct 10
+python quant_signal_engine.py scan --chains all --limit 30 --binance-usdt-only --evaluate --outcome-horizon-min 60 --outcome-target-pct 10
 ```
 
 Outcome reports:
@@ -85,26 +86,26 @@ Optional secret:
 
 - `NIM_API_KEY` - writes a Qwen analyst brief to `reports/latest_quant_brief.md`
 
-The scheduled job runs every 15 minutes with a small universe by default, commits `latest_quant_signals.json`, evaluates older signals, and updates the dashboard data.
+The scheduled job runs every 15 minutes, rotates through 3 chain batches when `--chains all` is selected, filters the universe down to live Binance USDT futures symbols, commits `latest_quant_signals.json`, evaluates older signals, and updates the dashboard data.
 
 ## Useful Modes
 
-Fast Solana watch:
+Fast Binance futures watch:
 
 ```bash
-python quant_signal_engine.py loop --chains solana --limit 25 --trade-limit 50 --interval 120
+python quant_signal_engine.py loop --chains all --limit 25 --trade-limit 50 --interval 120 --binance-usdt-only
 ```
 
 Multi-chain watch:
 
 ```bash
-python quant_signal_engine.py loop --chains solana,base,ethereum,arbitrum,bnb --limit 50 --interval 600
+python quant_signal_engine.py loop --chains all --limit 50 --interval 600 --binance-usdt-only
 ```
 
 Cheaper API mode:
 
 ```bash
-python quant_signal_engine.py scan --chains solana --limit 20 --trade-limit 30 --top-trader-limit 0 --no-new-listings
+python quant_signal_engine.py scan --chains all --limit 20 --trade-limit 30 --top-trader-limit 0 --no-new-listings --binance-usdt-only
 ```
 
 ## Signal Labels

@@ -3,63 +3,63 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AZALYST — Live Intelligence</title>
+<title>AZALYST | Birdeye Scanner</title>
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg: #04060a;
-  --s1: #080d14;
-  --s2: #0b1220;
-  --border: #131e2e;
-  --border2: #1a2840;
-  --text: #8faabf;
-  --bright: #c8dff0;
-  --muted: #3a5470;
-  --dim: #1e2f42;
-  --accent: #f0b429;
-  --accent2: #e07b00;
-  --green: #00ff88;
-  --green2: #00cc6a;
-  --red: #ff4466;
-  --red2: #cc2244;
-  --blue: #3b9eff;
-  --purple: #9b6dff;
-  --mono: 'Space Mono', monospace;
-  --sans: 'DM Sans', sans-serif;
+  --bg: #000000;
+  --s1: #0a0a0a;
+  --s2: #050505;
+  --border: #333333;
+  --border2: #1a1a1a;
+  --text: #bbbbbb;
+  --bright: #ffffff;
+  --muted: #555555;
+  --dim: #111111;
+  --accent: #ff9900;
+  --accent2: #ff6600;
+  --green: #00dd33;
+  --green2: #00aa2a;
+  --red: #ff3333;
+  --red2: #cc2200;
+  --blue: #0ea5e9;
+  --purple: #a855f7;
+  --mono: 'Courier New', monospace;
+  --sans: 'Courier New', monospace;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
-body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13px;line-height:1.5;min-height:100vh;overflow-x:hidden}
+body{background:var(--bg);color:var(--accent);font-family:var(--sans);font-size:13px;line-height:1.5;min-height:100vh;overflow-x:hidden;min-width:1220px}
 
 /* scanline overlay */
-body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.06) 2px,rgba(0,0,0,0.06) 4px);pointer-events:none;z-index:9998}
+body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(255,102,0,0.03) 3px,rgba(255,102,0,0.03) 4px);pointer-events:none;z-index:9998}
 
 /* top glow */
-body::after{content:'';position:fixed;top:0;left:50%;transform:translateX(-50%);width:600px;height:1px;background:linear-gradient(90deg,transparent,var(--green),transparent);z-index:100}
+body::after{content:'';position:fixed;top:0;left:50%;transform:translateX(-50%);width:760px;height:1px;background:linear-gradient(90deg,transparent,var(--accent2),transparent);z-index:100}
 
 /* ── HEADER ── */
-header{background:var(--s1);border-bottom:1px solid var(--border);padding:0 24px;height:52px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200}
-.logo{font-family:var(--mono);font-size:14px;font-weight:700;letter-spacing:.3em;color:var(--green);display:flex;align-items:center;gap:12px}
-.logo-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
-@keyframes pulse{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(0,255,136,.4)}50%{opacity:.6;box-shadow:0 0 0 6px rgba(0,255,136,0)}}
-.logo-sub{font-family:var(--sans);font-size:10px;font-weight:300;letter-spacing:.15em;color:var(--muted);text-transform:uppercase}
+header{background:var(--accent2);border-bottom:1px solid var(--accent2);padding:0 12px;height:42px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200;color:#000}
+.logo{font-family:var(--mono);font-size:15px;font-weight:700;letter-spacing:.18em;color:var(--accent2);display:flex;align-items:center;gap:12px;background:#000;padding:4px 12px}
+.logo-dot{width:8px;height:8px;border-radius:50%;background:#00ff41;animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+.logo-sub{font-family:var(--sans);font-size:10px;font-weight:400;letter-spacing:.12em;color:#fff;text-transform:uppercase}
 .header-center{display:flex;align-items:center;gap:8px}
-.live-badge{display:flex;align-items:center;gap:6px;font-family:var(--mono);font-size:9px;letter-spacing:.15em;padding:4px 10px;border:1px solid var(--border2);color:var(--muted)}
-.live-dot{width:5px;height:5px;border-radius:50%;background:var(--muted)}
+.live-badge{display:flex;align-items:center;gap:6px;font-family:var(--mono);font-size:9px;letter-spacing:.12em;padding:4px 10px;border:1px solid #000;background:#111;color:#ffb366}
+.live-dot{width:6px;height:6px;border-radius:50%;background:var(--muted)}
 .live-dot.active{background:var(--green);animation:blink 1.5s infinite}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
 .header-right{display:flex;align-items:center;gap:10px}
-input.repo-in{background:var(--bg);border:1px solid var(--border2);color:var(--bright);font-family:var(--mono);font-size:11px;padding:6px 12px;outline:none;width:220px;transition:.15s}
-input.repo-in:focus{border-color:var(--green);box-shadow:0 0 0 2px rgba(0,255,136,.1)}
-.btn{background:transparent;border:1px solid var(--border2);color:var(--muted);font-family:var(--mono);font-size:9px;letter-spacing:.12em;padding:6px 16px;cursor:pointer;text-transform:uppercase;transition:.15s}
-.btn:hover{border-color:var(--green);color:var(--green)}
-.btn.go{border-color:var(--green);color:var(--green)}
-.btn.go:hover{background:var(--green);color:var(--bg)}
-#countdown{font-family:var(--mono);font-size:10px;color:var(--muted);min-width:60px;text-align:right}
+input.repo-in{background:#000;border:1px solid #553300;color:#fff;font-family:var(--mono);font-size:11px;padding:6px 12px;outline:none;width:240px;transition:.15s}
+input.repo-in:focus{border-color:var(--accent2);box-shadow:0 0 0 1px rgba(255,102,0,.25)}
+.btn{background:#1a0a00;border:1px solid var(--accent2);color:var(--accent);font-family:var(--mono);font-size:9px;letter-spacing:.12em;padding:6px 16px;cursor:pointer;text-transform:uppercase;transition:.15s;font-weight:700}
+.btn:hover{background:var(--accent2);color:#000}
+.btn.go{background:#000;border-color:#000;color:#00ff41}
+.btn.go:hover{background:#111;color:#00ff41}
+#countdown{font-family:var(--mono);font-size:10px;color:#000;min-width:60px;text-align:right;font-weight:700}
 
 /* ── TICKER ── */
-.ticker{background:var(--s1);border-bottom:1px solid var(--border);height:28px;overflow:hidden;display:flex;align-items:center}
-.ticker-label{font-family:var(--mono);font-size:9px;letter-spacing:.2em;color:var(--green);padding:0 16px;border-right:1px solid var(--border);white-space:nowrap;height:100%;display:flex;align-items:center}
+.ticker{background:#111;border-bottom:1px solid #222;height:24px;overflow:hidden;display:flex;align-items:center}
+.ticker-label{font-family:var(--mono);font-size:9px;letter-spacing:.18em;color:var(--accent2);padding:0 16px;border-right:1px solid var(--border);white-space:nowrap;height:100%;display:flex;align-items:center;font-weight:700}
 .ticker-track{flex:1;overflow:hidden;position:relative;height:100%}
 .ticker-inner{display:flex;gap:40px;white-space:nowrap;animation:ticker 40s linear infinite;height:100%;align-items:center}
 .ticker-inner:hover{animation-play-state:paused}
@@ -67,25 +67,25 @@ input.repo-in:focus{border-color:var(--green);box-shadow:0 0 0 2px rgba(0,255,13
 .tick-item{font-family:var(--mono);font-size:9px;letter-spacing:.06em;display:flex;align-items:center;gap:6px;white-space:nowrap}
 .tick-pump{color:var(--green)}
 .tick-dump{color:var(--red)}
-.tick-sep{color:var(--muted)}
+.tick-sep{color:#444}
 
 /* ── TABS ── */
-.tabbar{background:var(--s1);border-bottom:1px solid var(--border);display:flex;padding:0 24px;gap:2px}
-.tab{font-family:var(--mono);font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);padding:13px 18px;cursor:pointer;border-bottom:2px solid transparent;transition:.15s;white-space:nowrap}
-.tab:hover{color:var(--text)}
-.tab.active{color:var(--green);border-bottom-color:var(--green)}
-.badge{display:inline-flex;align-items:center;justify-content:center;min-width:16px;height:16px;padding:0 4px;font-size:8px;border-radius:2px;margin-left:7px;background:var(--dim);color:var(--muted)}
-.badge.live{background:rgba(0,255,136,.15);color:var(--green)}
-.badge.warn{background:rgba(255,68,102,.15);color:var(--red)}
+.tabbar{background:var(--accent2);border-bottom:1px solid #222;display:flex;padding:0 12px;gap:1px}
+.tab{font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:#000;padding:8px 16px;cursor:pointer;border:none;transition:.15s;white-space:nowrap;background:#cc5200;font-weight:700}
+.tab:hover{background:#e06000}
+.tab.active{background:#fff;color:#000}
+.badge{display:inline-flex;align-items:center;justify-content:center;min-width:16px;height:16px;padding:0 4px;font-size:8px;border-radius:2px;margin-left:7px;background:#111;color:var(--accent)}
+.badge.live{background:#0a1a0a;color:#00ff41}
+.badge.warn{background:#1a0000;color:#ff4444}
 
 /* ── PAGES ── */
-.page{display:none;padding:20px 24px;animation:fadein .2s ease}
+.page{display:none;padding:14px 16px;animation:fadein .2s ease}
 .page.active{display:block}
 @keyframes fadein{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
 
 /* ── STAT BAR ── */
-.statbar{display:grid;grid-template-columns:repeat(6,1fr);gap:1px;background:var(--border);border:1px solid var(--border);margin-bottom:22px}
-.stat{background:var(--s1);padding:14px 16px;position:relative;overflow:hidden}
+.statbar{display:grid;grid-template-columns:repeat(6,1fr);gap:1px;background:#333;border:1px solid #333;margin-bottom:16px}
+.stat{background:#0a0a0a;padding:12px 16px;position:relative;overflow:hidden}
 .stat::after{content:'';position:absolute;top:0;left:0;right:0;height:2px}
 .stat.pump::after{background:linear-gradient(90deg,var(--green2),var(--green))}
 .stat.dump::after{background:linear-gradient(90deg,var(--red2),var(--red))}
@@ -93,8 +93,8 @@ input.repo-in:focus{border-color:var(--green);box-shadow:0 0 0 2px rgba(0,255,13
 .stat.gem::after{background:linear-gradient(90deg,var(--accent2),var(--accent))}
 .stat.chain::after{background:linear-gradient(90deg,var(--purple),#c0a0ff)}
 .stat.ops::after{background:var(--dim)}
-.stat-lbl{font-family:var(--mono);font-size:8px;letter-spacing:.18em;color:var(--muted);text-transform:uppercase;margin-bottom:7px}
-.stat-val{font-family:var(--mono);font-size:26px;font-weight:700;color:var(--bright);letter-spacing:-.03em;line-height:1}
+.stat-lbl{font-family:var(--mono);font-size:8px;letter-spacing:.12em;color:var(--muted);text-transform:uppercase;margin-bottom:7px}
+.stat-val{font-family:var(--mono);font-size:26px;font-weight:700;color:var(--bright);line-height:1}
 .stat-sub{font-size:10px;color:var(--muted);margin-top:4px}
 
 /* ── GRID LAYOUTS ── */
@@ -103,15 +103,15 @@ input.repo-in:focus{border-color:var(--green);box-shadow:0 0 0 2px rgba(0,255,13
 .g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px}
 
 /* ── PANEL ── */
-.panel{border:1px solid var(--border);background:var(--s2)}
-.ph{background:var(--s1);padding:9px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;font-family:var(--mono);font-size:8px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted)}
+.panel{border:1px solid #1a1a1a;background:#0a0a0a}
+.ph{background:#050505;padding:8px 12px;border-bottom:1px solid #222;display:flex;align-items:center;justify-content:space-between;font-family:var(--mono);font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent2);font-weight:700}
 .ph-count{font-size:10px;color:var(--accent)}
 .empty{padding:28px;text-align:center;color:var(--muted);font-family:var(--mono);font-size:10px}
 
 /* ── SIGNAL ROWS ── */
-.row{padding:10px 14px;border-bottom:1px solid var(--border);display:grid;align-items:center;gap:10px;transition:background .1s;cursor:default}
+.row{padding:10px 14px;border-bottom:1px solid #0d0d0d;display:grid;align-items:center;gap:10px;transition:background .1s;cursor:default}
 .row:last-child{border-bottom:none}
-.row:hover{background:rgba(255,255,255,.025)}
+.row:hover{background:#111}
 .r-sig{grid-template-columns:60px 90px 1fr 60px 55px}
 .r-whale{grid-template-columns:60px 90px 60px 1fr 80px}
 .r-gem{grid-template-columns:60px 90px 48px 1fr 60px}
@@ -131,24 +131,24 @@ input.repo-in:focus{border-color:var(--green);box-shadow:0 0 0 2px rgba(0,255,13
 .c-zksync{background:rgba(54,103,246,.12);color:#80a0ff}
 .c-unknown{background:rgba(50,80,100,.2);color:var(--muted)}
 
-.tok{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--bright);letter-spacing:.04em}
-.ind{font-size:11px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tok{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--accent);letter-spacing:.04em}
+.ind{font-size:11px;color:#888;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .addr{font-family:var(--mono);font-size:10px;color:var(--muted)}
 .sig-p{font-family:var(--mono);font-size:9px;font-weight:700;color:var(--green);letter-spacing:.1em}
 .sig-d{font-family:var(--mono);font-size:9px;font-weight:700;color:var(--red);letter-spacing:.1em}
-.val{font-family:var(--mono);font-size:11px;color:var(--accent);text-align:right}
+.val{font-family:var(--mono);font-size:11px;color:var(--bright);text-align:right}
 .val-green{font-family:var(--mono);font-size:11px;color:var(--green);text-align:right}
 .val-red{font-family:var(--mono);font-size:11px;color:var(--red);text-align:right}
 
 .conf{text-align:right}
 .conf-n{font-family:var(--mono);font-size:11px;color:var(--bright)}
-.conf-bar{height:2px;background:var(--dim);margin-top:3px;border-radius:1px;overflow:hidden}
+.conf-bar{height:2px;background:#111;margin-top:3px;border-radius:1px;overflow:hidden}
 .cf-p{height:100%;background:linear-gradient(90deg,var(--green2),var(--green));border-radius:1px}
 .cf-d{height:100%;background:linear-gradient(90deg,var(--red2),var(--red));border-radius:1px}
 
 /* ── LIVE FEED ── */
 .feed{max-height:380px;overflow-y:auto}
-.feed-item{padding:9px 14px;border-bottom:1px solid var(--border);display:flex;gap:10px;align-items:flex-start}
+.feed-item{padding:9px 14px;border-bottom:1px solid #0d0d0d;display:flex;gap:10px;align-items:flex-start}
 .feed-item.new{animation:flash .6s ease}
 @keyframes flash{0%{background:rgba(0,255,136,.1)}100%{background:transparent}}
 .feed-time{font-family:var(--mono);font-size:9px;color:var(--muted);white-space:nowrap;padding-top:1px}
@@ -179,14 +179,14 @@ input.repo-in:focus{border-color:var(--green);box-shadow:0 0 0 2px rgba(0,255,13
 .hm-bd{height:100%;background:var(--red2);border-radius:2px;transition:width .5s}
 
 /* ── REPORTS ── */
-.rpt-list{border:1px solid var(--border);max-height:420px;overflow-y:auto}
-.rpt-row{padding:9px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;cursor:pointer;transition:background .1s;font-size:11px}
-.rpt-row:hover{background:rgba(255,255,255,.02)}
-.rpt-row.sel{background:rgba(0,255,136,.06);border-left:2px solid var(--green)}
+.rpt-list{border:1px solid #1a1a1a;max-height:420px;overflow-y:auto}
+.rpt-row{padding:9px 16px;border-bottom:1px solid #0d0d0d;display:flex;justify-content:space-between;align-items:center;cursor:pointer;transition:background .1s;font-size:11px}
+.rpt-row:hover{background:#111}
+.rpt-row.sel{background:#1a0a00;border-left:2px solid var(--accent2)}
 .rpt-row:last-child{border-bottom:none}
-.rpt-name{font-family:var(--mono);font-size:10px;color:var(--text)}
+.rpt-name{font-family:var(--mono);font-size:10px;color:#bbb}
 .rpt-meta{font-family:var(--mono);font-size:9px;color:var(--muted)}
-.rpt-content{border:1px solid var(--border);background:var(--bg);padding:16px;font-family:var(--mono);font-size:10px;line-height:1.8;white-space:pre-wrap;max-height:500px;overflow-y:auto;color:var(--text)}
+.rpt-content{border:1px solid #1a1a1a;background:#000;padding:16px;font-family:var(--mono);font-size:10px;line-height:1.8;white-space:pre-wrap;max-height:500px;overflow-y:auto;color:#bbb}
 
 /* ── PILLS ── */
 .pill{font-family:var(--mono);font-size:8px;padding:2px 7px;letter-spacing:.08em;text-transform:uppercase;border-radius:1px}
@@ -199,8 +199,8 @@ input.repo-in:focus{border-color:var(--green);box-shadow:0 0 0 2px rgba(0,255,13
 
 /* ── SECTION HEADS ── */
 .sh{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
-.sl{font-family:var(--mono);font-size:8px;letter-spacing:.2em;color:var(--muted);text-transform:uppercase;display:flex;align-items:center;gap:8px}
-.sl::before{content:'';width:2px;height:10px;background:var(--green);display:inline-block}
+.sl{font-family:var(--mono);font-size:9px;letter-spacing:.12em;color:var(--accent2);text-transform:uppercase;display:flex;align-items:center;gap:8px;font-weight:700}
+.sl::before{content:'';width:2px;height:10px;background:var(--accent2);display:inline-block}
 .sm{font-family:var(--mono);font-size:9px;color:var(--muted)}
 .mb{margin-bottom:20px}
 
@@ -237,7 +237,7 @@ input.repo-in:focus{border-color:var(--green);box-shadow:0 0 0 2px rgba(0,255,13
   <div class="logo">
     <div class="logo-dot" id="liveDot"></div>
     AZALYST
-    <span class="logo-sub">Live Intelligence</span>
+    <span class="logo-sub">Birdeye Scanner</span>
   </div>
   <div class="header-center">
     <div class="live-badge">
@@ -255,7 +255,7 @@ input.repo-in:focus{border-color:var(--green);box-shadow:0 0 0 2px rgba(0,255,13
 
 <!-- TICKER -->
 <div class="ticker">
-  <div class="ticker-label">SIGNALS</div>
+  <div class="ticker-label">BIRDEYE</div>
   <div class="ticker-track">
     <div class="ticker-inner" id="tickerInner">
       <span class="tick-item tick-sep">· awaiting scan data ·</span>
@@ -288,14 +288,14 @@ input.repo-in:focus{border-color:var(--green);box-shadow:0 0 0 2px rgba(0,255,13
   </div>
   <div class="g2w">
     <div>
-      <div class="sh mb"><div class="sl">🚀 Pump Signals</div><span class="sm" id="pumpMeta">sorted by confidence</span></div>
+      <div class="sh mb"><div class="sl">Pump Signals</div><span class="sm" id="pumpMeta">binance usdt futures only</span></div>
       <div class="panel">
         <div class="ph"><span>Chain — Token — Indicators — Conf — Signal</span><span class="ph-count" id="pumpCount">0</span></div>
         <div id="pumpList"><div class="empty">Load a repository to see signals.</div></div>
       </div>
     </div>
     <div>
-      <div class="sh mb"><div class="sl">⚠️ Dump Warnings</div></div>
+      <div class="sh mb"><div class="sl">Dump Warnings</div></div>
       <div class="panel">
         <div class="ph"><span>Chain — Token — Conf — Signal</span><span class="ph-count" id="dumpCount">0</span></div>
         <div id="dumpList"><div class="empty">—</div></div>
@@ -306,7 +306,7 @@ input.repo-in:focus{border-color:var(--green);box-shadow:0 0 0 2px rgba(0,255,13
 
 <!-- WHALES -->
 <div class="page" id="tab-whales">
-  <div class="sh mb"><div class="sl">🐋 Whale Transactions</div><span class="sm">above $10,000 — latest scan</span></div>
+  <div class="sh mb"><div class="sl">Whale Transactions</div><span class="sm">above $10,000 — latest scan</span></div>
   <div class="panel">
     <div class="ph"><span>Chain — Token — Type — Wallet — Value</span><span class="ph-count" id="whaleCount">0</span></div>
     <div id="whaleList"><div class="empty">No data yet.</div></div>
@@ -315,7 +315,7 @@ input.repo-in:focus{border-color:var(--green);box-shadow:0 0 0 2px rgba(0,255,13
 
 <!-- TRADERS -->
 <div class="page" id="tab-traders">
-  <div class="sh mb"><div class="sl">🏆 Top Traders Leaderboard</div><span class="sm">most profitable traders by PnL — last 7 days</span></div>
+  <div class="sh mb"><div class="sl">Top Traders Leaderboard</div><span class="sm">most profitable traders by PnL — last 7 days</span></div>
   <div class="panel">
     <div class="ph"><span># — Wallet — PnL — Volume — Trades</span><span class="ph-count" id="traderCount">0</span></div>
     <div id="tradersList"><div class="empty">Load a report to see traders.</div></div>
@@ -324,7 +324,7 @@ input.repo-in:focus{border-color:var(--green);box-shadow:0 0 0 2px rgba(0,255,13
 
 <!-- SECURITY -->
 <div class="page" id="tab-security">
-  <div class="sh mb"><div class="sl">⚠️ Security Alerts</div><span class="sm">rug risk assessment — mintable, freeze authority, holder concentration</span></div>
+  <div class="sh mb"><div class="sl">Security Alerts</div><span class="sm">rug risk assessment — mintable, freeze authority, holder concentration</span></div>
   <div class="panel">
     <div class="ph"><span>Token — Risk Level — Score — Factors — Status</span><span class="ph-count" id="securityCount">0</span></div>
     <div id="securityList"><div class="empty">No security alerts.</div></div>
@@ -333,7 +333,7 @@ input.repo-in:focus{border-color:var(--green);box-shadow:0 0 0 2px rgba(0,255,13
 
 <!-- GEMS -->
 <div class="page" id="tab-gems">
-  <div class="sh mb"><div class="sl">💎 Hidden Gems</div><span class="sm">age &lt;24h · LP &gt;$2K · vol1H &gt;$10K · not mintable</span></div>
+  <div class="sh mb"><div class="sl">Hidden Gems</div><span class="sm">age &lt;24h · LP &gt;$2K · vol1H &gt;$10K · not mintable</span></div>
   <div class="panel">
     <div class="ph"><span>Chain — Token — Score — Metrics — Rating</span><span class="ph-count" id="gemCount">0</span></div>
     <div id="gemList"><div class="empty">No data yet.</div></div>
@@ -395,7 +395,8 @@ input.repo-in:focus{border-color:var(--green);box-shadow:0 0 0 2px rgba(0,255,13
       <div class="panel">
         <div style="padding:12px 14px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center"><span style="font-family:var(--mono);font-size:9px;color:var(--muted);letter-spacing:.1em">SCAN SCHEDULE</span><span style="font-family:var(--mono);font-size:10px;color:var(--text)">Every 15 min</span></div>
         <div style="padding:12px 14px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center"><span style="font-family:var(--mono);font-size:9px;color:var(--muted);letter-spacing:.1em">OUTCOME CHECK</span><span style="font-family:var(--mono);font-size:10px;color:var(--text)">60m / 10%</span></div>
-        <div style="padding:12px 14px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center"><span style="font-family:var(--mono);font-size:9px;color:var(--muted);letter-spacing:.1em">CHAINS</span><span style="font-family:var(--mono);font-size:10px;color:var(--text)">9 chains via Birdeye</span></div>
+        <div style="padding:12px 14px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center"><span style="font-family:var(--mono);font-size:9px;color:var(--muted);letter-spacing:.1em">CHAINS</span><span style="font-family:var(--mono);font-size:10px;color:var(--text)" id="opsChains">all supported Birdeye chains</span></div>
+        <div style="padding:12px 14px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center"><span style="font-family:var(--mono);font-size:9px;color:var(--muted);letter-spacing:.1em">UNIVERSE</span><span style="font-family:var(--mono);font-size:10px;color:var(--text)" id="opsUniverse">Binance USDT futures</span></div>
         <div style="padding:12px 14px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center"><span style="font-family:var(--mono);font-size:9px;color:var(--muted);letter-spacing:.1em">NEXT SCAN</span><span style="font-family:var(--mono);font-size:10px;color:var(--text)" id="opsNext">—</span></div>
         <div style="padding:12px 14px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center"><span style="font-family:var(--mono);font-size:9px;color:var(--muted);letter-spacing:.1em">SUCCESS RATE</span><span style="font-family:var(--mono);font-size:10px;color:var(--text)" id="opsRate">—</span></div>
         <div style="padding:12px 14px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center"><span style="font-family:var(--mono);font-size:9px;color:var(--muted);letter-spacing:.1em">DASHBOARD REFRESH</span><span style="font-family:var(--mono);font-size:10px;color:var(--text)">Every 60s</span></div>
@@ -456,7 +457,7 @@ function ctag(chain) {
 
 // ── Report parser ────────────────────────────────────────────
 function emptyIntel() {
-  return { timestamp: '', chains: [], pumps: [], dumps: [], whales: [], gems: [], outcomes: [] };
+  return { timestamp: '', chains: [], pumps: [], dumps: [], whales: [], gems: [], outcomes: [], filters: {} };
 }
 function parseQuantOutcomes(data) {
   return (data.outcomes || []).map(o => ({
@@ -474,6 +475,8 @@ function parseQuantOutcomes(data) {
 function parseQuantSignals(data) {
   const r = emptyIntel();
   r.timestamp = data.generated_at || '';
+  r.filters = data.filters || {};
+  const binanceOnly = !!r.filters.binance_usdt_only;
   const seenChains = new Set();
   for (const s of (data.signals || [])) {
     const chain = (s.chain || 'unknown').toLowerCase();
@@ -485,11 +488,17 @@ function parseQuantSignals(data) {
     const anomalyScore = parseFloat(s.anomaly_score || 0);
     const whaleNet = parseFloat(m.whale_net_usd || 0);
     seenChains.add(chain);
-    if (s.label === 'pump_candidate' || s.label === 'whale_accumulation' || pumpScore >= 50) {
-      r.pumps.push({ chain, token, confidence: pumpScore / 100, indicators: reasons, address: s.address, label: s.label });
+    if (s.label === 'pump_candidate' || s.label === 'whale_accumulation' || pumpScore >= (binanceOnly ? 40 : 50) || (binanceOnly && anomalyScore >= 70)) {
+      r.pumps.push({
+        chain, token, confidence: pumpScore / 100, indicators: reasons, address: s.address, label: s.label,
+        binanceSymbol: s.binance_symbol || '', binanceBase: s.binance_base_asset || ''
+      });
     }
-    if (s.label === 'dump_risk' || dumpScore >= 50) {
-      r.dumps.push({ chain, token, confidence: dumpScore / 100, indicators: reasons, address: s.address, label: s.label });
+    if (s.label === 'dump_risk' || dumpScore >= (binanceOnly ? 40 : 50)) {
+      r.dumps.push({
+        chain, token, confidence: dumpScore / 100, indicators: reasons, address: s.address, label: s.label,
+        binanceSymbol: s.binance_symbol || '', binanceBase: s.binance_base_asset || ''
+      });
     }
     if (Math.abs(whaleNet) >= 10000 || reasons.some(x => String(x).includes('whale_'))) {
       r.whales.push({
@@ -501,7 +510,7 @@ function parseQuantSignals(data) {
       r.gems.push({
         chain, token, score: Math.max(pumpScore, anomalyScore),
         age: 0, vol1h: parseFloat(m.volume_1h_usd || 0), lp: parseFloat(m.liquidity_usd || 0),
-        label: s.label
+        label: s.label, binanceSymbol: s.binance_symbol || '', binanceBase: s.binance_base_asset || ''
       });
     }
   }
@@ -519,6 +528,7 @@ function parseReport(text) {
     if (data.kind === 'quant_outcomes' || data.outcomes) {
       const r = emptyIntel();
       r.timestamp = data.generated_at || '';
+      r.filters = data.filters || {};
       r.outcomes = parseQuantOutcomes(data);
       return r;
     }
@@ -641,6 +651,15 @@ function renderAll(intel) {
   document.getElementById('bWhale').textContent = intel.whales.length;
   document.getElementById('bGem').textContent = intel.gems.length;
   document.getElementById('opsNext').textContent = nextHour();
+  document.getElementById('pumpMeta').textContent = intel.filters?.binance_usdt_only
+    ? 'binance usdt futures only'
+    : 'sorted by confidence';
+  document.getElementById('opsUniverse').textContent = intel.filters?.binance_usdt_only
+    ? `Binance USDT futures (${intel.filters.binance_symbol_count || 0} live symbols)`
+    : 'Open Birdeye universe';
+  document.getElementById('opsChains').textContent = (intel.filters?.scan_chains || []).length
+    ? `${intel.filters.scan_chains.join(', ')}`
+    : 'all supported Birdeye chains';
 
   // Pump list
   document.getElementById('pumpCount').textContent = intel.pumps.length;
