@@ -1,6 +1,6 @@
 """
 Tool dispatcher for the NIM Qwen Agent.
-Full Birdeye tool set with multi-chain support.
+Full Azalyst Alpha Scanner tool set with multi-chain support.
 """
 
 import subprocess
@@ -10,7 +10,7 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 try:
-    from birdeye_tracker import (
+    from azalyst_tracker import (
         track_whale, find_pumps, analyze_token, daily_scan,
         get_profitable_traders, get_wallet_pnl, get_top_traders,
         check_token_security, get_new_listings, get_token_creation_info,
@@ -18,13 +18,13 @@ try:
         get_ohlcv, get_wallet_token_list, get_wallet_tx_list,
         SUPPORTED_CHAINS,
     )
-    BIRDEYE_AVAILABLE = True
+    AZALYST_AVAILABLE = True
 except ImportError:
-    BIRDEYE_AVAILABLE = False
+    AZALYST_AVAILABLE = False
     SUPPORTED_CHAINS = {}
 
 TOOLS = ["bash", "read_file", "write_file", "list_dir", "search"]
-if BIRDEYE_AVAILABLE:
+if AZALYST_AVAILABLE:
     TOOLS.extend([
         "track_whale", "find_pumps", "analyze_token", "daily_scan",
         "get_profitable_traders", "get_wallet_pnl", "get_top_traders",
@@ -98,7 +98,7 @@ def search(pattern: str, path: str = ".") -> str:
 
 
 def _api_key(args: dict) -> str:
-    return args.get("api_key", os.environ.get("BIRDEYE_API_KEY"))
+    return args.get("api_key", os.environ.get("HELIUS_API_KEY"))
 
 
 def execute_tool(tool_name: str, args: dict) -> str:
@@ -114,10 +114,10 @@ def execute_tool(tool_name: str, args: dict) -> str:
     if tool_name == "search":
         return search(args.get("pattern", ""), args.get("path", "."))
 
-    if not BIRDEYE_AVAILABLE:
-        return f"Birdeye module not available. Tool '{tool_name}' cannot run."
+    if not AZALYST_AVAILABLE:
+        return f"Azalyst module not available. Tool '{tool_name}' cannot run."
 
-    # ── Birdeye tools ────────────────────────────────────────────────────────
+    # ── Azalyst tools ────────────────────────────────────────────────────────
     key = _api_key(args)
 
     if tool_name == "track_whale":

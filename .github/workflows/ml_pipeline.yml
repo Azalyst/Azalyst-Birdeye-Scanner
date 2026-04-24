@@ -1,4 +1,4 @@
-name: Birdeye ML Pipeline
+name: Azalyst Alpha Scanner — ML Pipeline
 
 on:
   schedule:
@@ -21,7 +21,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: birdeye-quant-signal-engine
+  group: azalyst-ml-pipeline
   cancel-in-progress: false
 
 jobs:
@@ -64,7 +64,7 @@ jobs:
 
       - name: Commit ML artifacts
         run: |
-          git config user.name "Birdeye ML Bot"
+          git config user.name "Azalyst ML Bot"
           git config user.email "actions@github.com"
           git add -f data/birdeye_quant.db || true
           git add -f ml/model.pkl ml/metrics.json reports/ 2>/dev/null || true
@@ -73,5 +73,5 @@ jobs:
             exit 0
           fi
           git commit -m "ML pipeline: ${{ steps.mode.outputs.mode }} run"
-          git pull --rebase origin main
-          git push
+          git pull --rebase -X theirs origin main || git rebase --abort
+          git push origin HEAD:main

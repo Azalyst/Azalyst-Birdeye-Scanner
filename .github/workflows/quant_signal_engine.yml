@@ -1,4 +1,4 @@
-name: Birdeye Quant Signal Engine
+name: Azalyst Alpha Scanner — Quant Signal Engine
 
 on:
   workflow_dispatch:
@@ -26,7 +26,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: birdeye-quant-signal-engine
+  group: azalyst-signal-engine
   cancel-in-progress: false
 
 jobs:
@@ -37,7 +37,7 @@ jobs:
       LIMIT: ${{ github.event.inputs.limit || '10' }}
       HORIZON_MIN: ${{ github.event.inputs.horizon_min || '60' }}
       TARGET_PCT: ${{ github.event.inputs.target_pct || '10' }}
-      BIRDEYE_API_KEY: ${{ secrets.BIRDEYE_API_KEY }}
+      HELIUS_API_KEY: ${{ secrets.HELIUS_API_KEY }}
       NIM_API_KEY: ${{ secrets.NIM_API_KEY }}
 
     steps:
@@ -56,11 +56,6 @@ jobs:
 
       - name: Run quant scan and evaluate old calls
         run: |
-          if [ -z "$BIRDEYE_API_KEY" ]; then
-            echo "BIRDEYE_API_KEY secret is required"
-            exit 1
-          fi
-
           RESOLVED_CHAINS="$CHAINS"
           if [ "$CHAINS" = "all" ]; then
             SLOT=$(( (10#$(date -u +%M) / 15) % 3 ))
@@ -87,7 +82,7 @@ jobs:
 
       - name: Commit dashboard data
         run: |
-          git config user.name "Quant Signal Bot"
+          git config user.name "Azalyst Signal Bot"
           git config user.email "actions@github.com"
 
           git add -f data/birdeye_quant.db || true
@@ -99,6 +94,6 @@ jobs:
           git add -f reports/quant_brief_*.md || true
 
           git diff --staged --quiet && exit 0
-          git commit -m "Update Birdeye quant signals"
+          git commit -m "Update Azalyst quant signals"
           git pull --rebase -X theirs origin main || git rebase --abort
           git push origin HEAD:main

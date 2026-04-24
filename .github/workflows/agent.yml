@@ -1,4 +1,4 @@
-name: NIM Qwen Agent
+name: Azalyst Alpha Scanner — NIM Qwen Agent
 
 on:
   schedule:
@@ -15,7 +15,7 @@ on:
     types: [created]
 
 concurrency:
-  group: nim-qwen-agent
+  group: azalyst-nim-agent
   cancel-in-progress: false
 
 jobs:
@@ -48,23 +48,16 @@ jobs:
       - name: Verify required secrets
         env:
           NIM_API_KEY: ${{ secrets.NIM_API_KEY }}
-          BIRDEYE_API_KEY: ${{ secrets.BIRDEYE_API_KEY }}
         run: |
-          missing=0
           if [ -z "$NIM_API_KEY" ]; then
             echo "::error::NIM_API_KEY secret is not set"
-            missing=1
+            exit 1
           fi
-          if [ -z "$BIRDEYE_API_KEY" ]; then
-            echo "::error::BIRDEYE_API_KEY secret is not set"
-            missing=1
-          fi
-          if [ "$missing" -eq 1 ]; then exit 1; fi
 
       - name: Run agent
         env:
           NIM_API_KEY: ${{ secrets.NIM_API_KEY }}
-          BIRDEYE_API_KEY: ${{ secrets.BIRDEYE_API_KEY }}
+          HELIUS_API_KEY: ${{ secrets.HELIUS_API_KEY }}
         run: |
           if [ "${{ github.event_name }}" = "schedule" ]; then
             python agent.py "run daily_scan and save results to reports/daily_scan.md"
@@ -78,16 +71,16 @@ jobs:
 
       - name: Commit changes
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.name "Azalyst Agent Bot"
+          git config user.email "actions@github.com"
           git add -f reports/ agent_output.txt 2>/dev/null || true
           if git diff --staged --quiet; then
             echo "No agent output changes to commit"
             exit 0
           fi
           git commit -m "Agent scheduled scan update"
-          git pull --rebase origin main
-          git push
+          git pull --rebase -X theirs origin main || git rebase --abort
+          git push origin HEAD:main
 
       - name: Comment on issue
         if: github.event_name == 'issue_comment'

@@ -1,10 +1,10 @@
-name: Birdeye Whale Tracking Scan
+name: Azalyst Alpha Scanner — Whale Tracking
 
 on:
   workflow_dispatch:
     inputs:
       scan_type:
-        description: "Compatibility scan type"
+        description: "Scan type"
         required: true
         default: "daily"
         type: choice
@@ -21,7 +21,7 @@ permissions:
   issues: write
 
 concurrency:
-  group: birdeye-quant-signal-engine
+  group: azalyst-signal-engine
   cancel-in-progress: false
 
 jobs:
@@ -29,7 +29,7 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event_name == 'workflow_dispatch' || (github.event_name == 'issue_comment' && startsWith(github.event.comment.body, '/whale'))
     env:
-      BIRDEYE_API_KEY: ${{ secrets.BIRDEYE_API_KEY }}
+      HELIUS_API_KEY: ${{ secrets.HELIUS_API_KEY }}
       NIM_API_KEY: ${{ secrets.NIM_API_KEY }}
 
     steps:
@@ -46,13 +46,8 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Run compatibility scan
+      - name: Run whale scan
         run: |
-          if [ -z "$BIRDEYE_API_KEY" ]; then
-            echo "BIRDEYE_API_KEY secret is required"
-            exit 1
-          fi
-
           CHAINS="solana,base"
           LIMIT="20"
 
@@ -82,7 +77,7 @@ jobs:
 
       - name: Commit scan results
         run: |
-          git config user.name "Whale Tracker Bot"
+          git config user.name "Azalyst Whale Bot"
           git config user.email "actions@github.com"
 
           git add -f data/birdeye_quant.db || true
@@ -94,9 +89,9 @@ jobs:
           git add -f reports/quant_brief_*.md || true
 
           git diff --staged --quiet && exit 0
-          git commit -m "Update whale quant scan"
-          git pull --rebase origin main || true
-          git push
+          git commit -m "Update Azalyst whale scan"
+          git pull --rebase -X theirs origin main || git rebase --abort
+          git push origin HEAD:main
 
       - name: Comment on issue
         if: github.event_name == 'issue_comment'
@@ -110,7 +105,7 @@ jobs:
               const rows = (data.signals || []).slice(0, 8).map(s =>
                 `- ${s.chain}/${s.symbol}: ${s.label} pump=${s.pump_score} dump=${s.dump_score} risk=${s.risk_score}`
               );
-              body = `## Whale Quant Scan\n\n${rows.join('\n')}`;
+              body = `## Azalyst Whale Scan\n\n${rows.join('\n')}`;
             } catch (e) {}
             github.rest.issues.createComment({
               issue_number: context.issue.number,
