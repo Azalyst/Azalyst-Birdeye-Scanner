@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AZALYST | Birdeye Scanner</title>
+<title>AZALYST | Alpha Scanner</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 html{font-size:13px}
@@ -131,7 +131,7 @@ input.repo-in:focus{border-color:#ff6600}
 
 <div class="topbar">
   <div style="display:flex;align-items:center">
-    <div class="logo"><span class="live-dot" id="liveDot"></span>AZALYST<span>BIRDEYE SCANNER</span></div>
+    <div class="logo"><span class="live-dot" id="liveDot"></span>AZALYST<span>ALPHA SCANNER</span></div>
     <div class="tabs">
       <button class="tab active" onclick="tab('intel',this)">Intelligence<span class="badge live" id="bIntel">—</span></button>
       <button class="tab" onclick="tab('traders',this)">Traders<span class="badge" id="bTraders">—</span></button>
@@ -149,14 +149,14 @@ input.repo-in:focus{border-color:#ff6600}
     <span id="clock">--:--:-- IST</span>
     <span id="dataStatus" class="offline-badge">● OFFLINE</span>
     <span id="countdown">—</span>
-    <input class="repo-in" id="repoIn" placeholder="owner/repository" value="Azalyst/Azalyst-Birdeye-Scanner"/>
+    <input class="repo-in" id="repoIn" placeholder="owner/repository" value="Azalyst/Azalyst-Alpha-Scanner"/>
     <input class="repo-in" id="tokenIn" placeholder="PAT (private)" type="password" style="width:130px"/>
     <button class="btn" onclick="init()">LOAD</button>
   </div>
 </div>
 
 <div class="tape">
-  <div class="tape-label">BIRDEYE</div>
+  <div class="tape-label">AZALYST</div>
   <div class="tape-track">
     <div class="tape-inner" id="tapeInner"><span class="tape-item tape-sep">· awaiting scan data ·</span></div>
   </div>
@@ -283,13 +283,13 @@ input.repo-in:focus{border-color:#ff6600}
   <span class="sb-item">SCAN <span class="sb-val">every 15min</span></span>
   <span class="sb-item">ML <span class="sb-val">every 2h</span></span>
   <span class="sb-item">REFRESH <span class="sb-val">60s</span></span>
-  <span class="sb-item" id="sbRepo">REPO <span class="sb-val">Azalyst/Azalyst-Birdeye-Scanner</span></span>
+  <span class="sb-item" id="sbRepo">REPO <span class="sb-val">Azalyst/Azalyst-Alpha-Scanner</span></span>
   <span style="flex:1"></span>
-  <span class="sb-item" style="color:#222">AZALYST BIRDEYE SCANNER</span>
+  <span class="sb-item" style="color:#222">AZALYST ALPHA SCANNER</span>
 </div>
 
 <script>
-const S={repo:'Azalyst/Azalyst-Birdeye-Scanner',token:'',runs:[],reports:[],parsed:null,feed:[],outcomes:[],ml:null,refreshTimer:null,countdown:60};
+const S={repo:'Azalyst/Azalyst-Alpha-Scanner',token:'',runs:[],reports:[],parsed:null,feed:[],outcomes:[],ml:null,refreshTimer:null,countdown:60};
 
 function updateClock(){const n=new Date(),ist=new Date(n.getTime()+(5.5*3600000));const h=ist.getUTCHours().toString().padStart(2,'0'),m=ist.getUTCMinutes().toString().padStart(2,'0'),s=ist.getUTCSeconds().toString().padStart(2,'0');document.getElementById('clock').textContent=`${h}:${m}:${s} IST`;}
 setInterval(updateClock,1000);updateClock();
@@ -381,8 +381,8 @@ function renderAll(intel){
   document.getElementById('bSecurity').className='badge'+(intel.security.length>0?' warn':'');
   document.getElementById('bTraders').textContent=intel.traders.length;
   document.getElementById('opsNext').textContent=nextHour();
-  document.getElementById('pumpMeta').textContent=intel.filters?.binance_usdt_only?'binance usdt futures only':'sorted by confidence';
-  document.getElementById('opsUniverse').textContent=intel.filters?.binance_usdt_only?`Binance USDT futures (${intel.filters.binance_symbol_count||0} live)`:'Open Birdeye universe';
+  document.getElementById('pumpMeta').textContent='sorted by confidence';
+  document.getElementById('opsUniverse').textContent='Open multi-chain universe (DexScreener + GeckoTerminal)';
   document.getElementById('opsChains').textContent=(intel.filters?.scan_chains||[]).length?intel.filters.scan_chains.join(', '):'all supported chains';
   document.getElementById('sbRepo').innerHTML=`REPO <span class="sb-val">${S.repo}</span>`;
 
