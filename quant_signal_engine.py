@@ -25,8 +25,8 @@ from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple
 import requests
 
 
-BASE_URL = "https://public-api.birdeye.so"
-BINANCE_FUTURES_EXCHANGE_INFO_URL = "https://fapi.binance.com/fapi/v1/exchangeInfo"
+# AzalystClient uses DexScreener + GeckoTerminal + GoPlus + Helius
+BINANCE_FUTURES_EXCHANGE_INFO_URL = "https://fapi.binance.com/fapi/v1/exchangeInfo"  # kept for BinanceFuturesUniverse
 DEFAULT_DB = Path("data") / "birdeye_quant.db"
 DEFAULT_REPORT_DIR = Path("reports")
 DEFAULT_BINANCE_CACHE = Path("data") / "binance_usdt_futures_cache.json"
@@ -283,140 +283,591 @@ class BinanceFuturesUniverse:
         return None
 
 
-class BirdeyeClient:
-    def __init__(self, api_key: Optional[str] = None, min_delay: float = 0.12, timeout: int = 20):
-        self.api_key = api_key or os.getenv("BIRDEYE_API_KEY")
+# ---------------------------------------------------------------------------
+# AzalystClient — drop-in replacement for BirdeyeClient
+# Sources: DexScreener + GeckoTerminal + GoPlus + Helius (Solana)
+#
+# Paste this block (constants + class) into quant_signal_engine.py to replace
+# the BirdeyeClient class that lives at lines 284-418.
+# Do NOT include the import statements below; the host file already has them.
+# ---------------------------------------------------------------------------
+
+_DS_BASE = "https://api.dexscreener.com"
+_GT_BASE = "https://api.geckoterminal.com/api/v2"
+_GP_BASE = "https://api.gopluslabs.io/api/v1"
+_HELIUS_RPC = "https://mainnet.helius-rpc.com"
+_HELIUS_API = "https://api.helius.xyz/v0"
+
+_GT_NETWORK = {
+    "solana": "solana",
+    "ethereum": "eth",
+    "base": "base",
+    "arbitrum": "arbitrum",
+    "bnb": "bsc",
+    "avalanche": "avax",
+    "polygon": "polygon_pos",
+    "optimism": "optimism",
+    "zksync": "zksync",
+}
+
+_DS_CHAIN = {
+    "solana": "solana",
+    "ethereum": "ethereum",
+    "base": "base",
+    "arbitrum": "arbitrum",
+    "bnb": "bsc",
+    "avalanche": "avalanche",
+    "polygon": "polygon",
+    "optimism": "optimism",
+    "zksync": "zksync",
+}
+
+_GP_CHAIN_ID = {
+    "ethereum": "1",
+    "bnb": "56",
+    "polygon": "137",
+    "avalanche": "43114",
+    "arbitrum": "42161",
+    "base": "8453",
+    "optimism": "10",
+    "zksync": "324",
+    "solana": "solana",
+}
+
+
+class AzalystClient:
+    """
+    Multi-source crypto data client for Azalyst Alpha Scanner.
+    Drop-in replacement for BirdeyeClient — identical public API.
+
+    Data sources:
+      - DexScreener  (no key required)
+      - GeckoTerminal (no key required)
+      - GoPlus        (no key required)
+      - Helius        (api_key = HELIUS_API_KEY, Solana only)
+    """
+
+    def __init__(
+        self,
+        api_key: Optional[str] = None,
+        min_delay: float = 0.15,
+        timeout: int = 20,
+    ) -> None:
+        self.api_key: str = api_key or os.environ.get("HELIUS_API_KEY", "")
         self.min_delay = min_delay
         self.timeout = timeout
-        self.session = requests.Session()
-        self.last_call_at = 0.0
-        self.base_headers = {"Accept": "application/json"}
-        if self.api_key:
-            self.base_headers["X-API-KEY"] = self.api_key
+        self._last_call: float = 0.0
+        self._pair_cache: Dict[str, str] = {}
 
-    def _headers(self, chain: str) -> Dict[str, str]:
-        resolved = SUPPORTED_CHAINS.get(chain.lower(), chain.lower())
-        return {**self.base_headers, "x-chain": resolved}
-
-    def _request(
-        self,
-        method: str,
-        path: str,
-        chain: str,
-        params: Optional[Dict[str, Any]] = None,
-        json_body: Optional[Dict[str, Any]] = None,
-        retries: int = 2,
-    ) -> Any:
-        elapsed = time.time() - self.last_call_at
+    # ------------------------------------------------------------------
+    # Internal helpers
+    # ------------------------------------------------------------------
+    def _throttle(self) -> None:
+        elapsed = time.time() - self._last_call
         if elapsed < self.min_delay:
             time.sleep(self.min_delay - elapsed)
+        self._last_call = time.time()
 
-        url = f"{BASE_URL}{path}"
-        headers = self._headers(chain)
-        if json_body is not None:
-            headers["Content-Type"] = "application/json"
+    def _get(self, url: str, params: Optional[Dict] = None) -> Optional[Dict]:
+        self._throttle()
+        try:
+            resp = requests.get(url, params=params, timeout=self.timeout)
+            resp.raise_for_status()
+            return resp.json()
+        except Exception as exc:
+            logging.getLogger("azalyst_client").warning("GET %s failed: %s", url, exc)
+            return None
 
-        for attempt in range(retries + 1):
-            self.last_call_at = time.time()
-            try:
-                response = self.session.request(
-                    method,
-                    url,
-                    headers=headers,
-                    params=params,
-                    json=json_body,
-                    timeout=self.timeout,
-                )
-            except requests.RequestException as exc:
-                if attempt < retries:
-                    time.sleep(1.0 + attempt)
-                    continue
-                return {"error": "network", "message": str(exc)[:500], "path": path}
-            status = response.status_code
-            if status == 429 and attempt < retries:
-                time.sleep(1.5 + attempt * 2)
-                continue
-            if 500 <= status < 600 and attempt < retries:
-                time.sleep(1.0 + attempt * 1.5)
-                continue
-            if status >= 400:
-                return {"error": status, "message": response.text[:500], "path": path}
-            try:
-                body = response.json()
-            except ValueError:
-                return {"error": "bad_json", "message": response.text[:500], "path": path}
-            return body.get("data", body)
-        return {"error": "exhausted_retries", "path": path}
+    def _post(self, url: str, payload: Dict) -> Optional[Dict]:
+        self._throttle()
+        try:
+            resp = requests.post(url, json=payload, timeout=self.timeout)
+            resp.raise_for_status()
+            return resp.json()
+        except Exception as exc:
+            logging.getLogger("azalyst_client").warning("POST %s failed: %s", url, exc)
+            return None
 
-    def token_trending(self, chain: str, limit: int = 50, sort_by: str = "volume") -> List[Dict[str, Any]]:
-        data = self._request(
-            "GET",
-            "/defi/token_trending",
-            chain,
-            params={"sort_by": sort_by, "sort_type": "desc", "limit": limit},
-        )
-        return normalize_list(data, ["tokens", "items", "data"])
+    @staticmethod
+    def _sf(value: Any, default: float = 0.0) -> float:
+        """Safe float conversion."""
+        try:
+            return float(value)
+        except (TypeError, ValueError):
+            return default
 
+    def _resolve_pair(self, chain: str, address: str) -> str:
+        """Return DexScreener pair address for *address*, using cache when available."""
+        cached = self._pair_cache.get(address)
+        if cached:
+            return cached
+        overview = self.token_overview(chain, address)
+        return self._pair_cache.get(address, "")
+
+    # ------------------------------------------------------------------
+    # token_trending
+    # ------------------------------------------------------------------
+    def token_trending(
+        self,
+        chain: str,
+        limit: int = 50,
+        sort_by: str = "volume",
+    ) -> List[Dict]:
+        """
+        Return trending tokens via GeckoTerminal trending_pools.
+        Each item is guaranteed to have an `address` key.
+        """
+        network = _GT_NETWORK.get(chain.lower())
+        if not network:
+            return []
+
+        url = f"{_GT_BASE}/networks/{network}/trending_pools"
+        data = self._get(url, params={"include": "base_token"})
+        if not data:
+            return []
+
+        results: List[Dict] = []
+        for pool in data.get("data", [])[:limit]:
+            attrs = pool.get("attributes", {})
+            relationships = pool.get("relationships", {})
+            base_data = relationships.get("base_token", {}).get("data", {})
+
+            address = ""
+            if base_data:
+                token_id = base_data.get("id", "")
+                parts = token_id.split("_", 1)
+                address = parts[1] if len(parts) == 2 else token_id
+
+            vol = attrs.get("volume_usd", {})
+            price_chg = attrs.get("price_change_percentage", {})
+
+            results.append({
+                "address": address,
+                "symbol": attrs.get("name", "").split(" / ")[0],
+                "name": attrs.get("name", ""),
+                "price": self._sf(attrs.get("base_token_price_usd")),
+                "liquidity_usd": self._sf(attrs.get("reserve_in_usd")),
+                "v24h": self._sf(vol.get("h24") if isinstance(vol, dict) else vol),
+                "v1h": self._sf(vol.get("h1") if isinstance(vol, dict) else 0),
+                "price_change_24h_pct": self._sf(
+                    price_chg.get("h24") if isinstance(price_chg, dict) else 0
+                ),
+                "price_change_1h_pct": self._sf(
+                    price_chg.get("h1") if isinstance(price_chg, dict) else 0
+                ),
+                "fdv": 0.0,
+                "mc": 0.0,
+                "chain": chain,
+            })
+        return results
+
+    # ------------------------------------------------------------------
+    # token_list
+    # ------------------------------------------------------------------
     def token_list(
         self,
         chain: str,
         limit: int = 50,
         sort_by: str = "v24hUSD",
         min_liquidity: float = 0.0,
-    ) -> List[Dict[str, Any]]:
-        params = {
-            "sort_by": sort_by,
-            "sort_type": "desc",
-            "offset": 0,
-            "limit": min(max(limit, 1), 50),
+    ) -> List[Dict]:
+        """
+        Return top tokens via GeckoTerminal top pools (by volume).
+        Each item is guaranteed to have an `address` key.
+        """
+        network = _GT_NETWORK.get(chain.lower())
+        if not network:
+            return []
+
+        # GeckoTerminal does not have a generic "top tokens" endpoint;
+        # trending_pools ordered by volume is the closest equivalent.
+        url = f"{_GT_BASE}/networks/{network}/pools"
+        data = self._get(url, params={"include": "base_token", "page": 1})
+        if not data:
+            # Fallback to trending
+            data = self._get(
+                f"{_GT_BASE}/networks/{network}/trending_pools",
+                params={"include": "base_token"},
+            )
+        if not data:
+            return []
+
+        results: List[Dict] = []
+        for pool in data.get("data", [])[:limit]:
+            attrs = pool.get("attributes", {})
+            liq = self._sf(attrs.get("reserve_in_usd"))
+            if liq < min_liquidity:
+                continue
+
+            relationships = pool.get("relationships", {})
+            base_data = relationships.get("base_token", {}).get("data", {})
+            address = ""
+            if base_data:
+                token_id = base_data.get("id", "")
+                parts = token_id.split("_", 1)
+                address = parts[1] if len(parts) == 2 else token_id
+
+            vol = attrs.get("volume_usd", {})
+            price_chg = attrs.get("price_change_percentage", {})
+
+            results.append({
+                "address": address,
+                "symbol": attrs.get("name", "").split(" / ")[0],
+                "name": attrs.get("name", ""),
+                "price": self._sf(attrs.get("base_token_price_usd")),
+                "liquidity_usd": liq,
+                "v24h": self._sf(vol.get("h24") if isinstance(vol, dict) else vol),
+                "v1h": self._sf(vol.get("h1") if isinstance(vol, dict) else 0),
+                "price_change_24h_pct": self._sf(
+                    price_chg.get("h24") if isinstance(price_chg, dict) else 0
+                ),
+                "price_change_1h_pct": self._sf(
+                    price_chg.get("h1") if isinstance(price_chg, dict) else 0
+                ),
+                "fdv": 0.0,
+                "mc": 0.0,
+                "chain": chain,
+            })
+        return results
+
+    # ------------------------------------------------------------------
+    # new_listings
+    # ------------------------------------------------------------------
+    def new_listings(self, chain: str, limit: int = 50) -> List[Dict]:
+        """
+        Return newly listed tokens via GeckoTerminal new_pools.
+        Each item is guaranteed to have an `address` key.
+        """
+        network = _GT_NETWORK.get(chain.lower())
+        if not network:
+            return []
+
+        url = f"{_GT_BASE}/networks/{network}/new_pools"
+        data = self._get(url, params={"include": "base_token"})
+        if not data:
+            return []
+
+        results: List[Dict] = []
+        for pool in data.get("data", [])[:limit]:
+            attrs = pool.get("attributes", {})
+            relationships = pool.get("relationships", {})
+            base_data = relationships.get("base_token", {}).get("data", {})
+
+            address = ""
+            if base_data:
+                token_id = base_data.get("id", "")
+                parts = token_id.split("_", 1)
+                address = parts[1] if len(parts) == 2 else token_id
+
+            created_raw = attrs.get("pool_created_at", "")
+            created_ts = 0
+            if created_raw:
+                try:
+                    import datetime as _dt
+                    created_ts = int(
+                        _dt.datetime.fromisoformat(
+                            created_raw.replace("Z", "+00:00")
+                        ).timestamp()
+                    )
+                except Exception:
+                    pass
+
+            results.append({
+                "address": address,
+                "symbol": attrs.get("name", "").split(" / ")[0],
+                "name": attrs.get("name", ""),
+                "created_at": created_ts,
+                "chain": chain,
+                "price": self._sf(attrs.get("base_token_price_usd")),
+                "liquidity_usd": self._sf(attrs.get("reserve_in_usd")),
+            })
+        return results
+
+    # ------------------------------------------------------------------
+    # token_overview
+    # ------------------------------------------------------------------
+    def token_overview(self, chain: str, address: str) -> Dict:
+        """
+        Return normalized token overview from DexScreener.
+
+        All keys present so downstream `first_float` fallback logic works:
+          price, liquidity_usd, fdv, mc, v5m, v1h, v24h,
+          price_change_5m_pct, price_change_1h_pct, price_change_24h_pct,
+          symbol, name, address, pair_address, holder, holder_change_24h
+        """
+        url = f"{_DS_BASE}/latest/dex/tokens/{address}"
+        data = self._get(url)
+        if not data:
+            return {"error": "DexScreener request failed", "address": address}
+
+        ds_chain = _DS_CHAIN.get(chain.lower(), chain.lower())
+        pairs = [
+            p for p in data.get("pairs", [])
+            if p.get("chainId", "").lower() == ds_chain
+        ]
+        if not pairs:
+            pairs = data.get("pairs", [])
+        if not pairs:
+            return {"error": "No pairs found", "address": address}
+
+        pairs.sort(
+            key=lambda p: self._sf(p.get("liquidity", {}).get("usd", 0)),
+            reverse=True,
+        )
+        pair = pairs[0]
+
+        pair_address = pair.get("pairAddress", "")
+        if pair_address:
+            self._pair_cache[address] = pair_address
+
+        base = pair.get("baseToken", {})
+        liquidity = pair.get("liquidity", {})
+        volume = pair.get("volume", {})
+        price_change = pair.get("priceChange", {})
+
+        return {
+            "address": address,
+            "symbol": base.get("symbol", ""),
+            "name": base.get("name", ""),
+            "price": self._sf(pair.get("priceUsd")),
+            "liquidity_usd": self._sf(liquidity.get("usd")),
+            "fdv": self._sf(pair.get("fdv")),
+            "mc": self._sf(pair.get("marketCap")),
+            "v5m": self._sf(volume.get("m5")),
+            "v1h": self._sf(volume.get("h1")),
+            "v24h": self._sf(volume.get("h24")),
+            "price_change_5m_pct": self._sf(price_change.get("m5")),
+            "price_change_1h_pct": self._sf(price_change.get("h1")),
+            "price_change_24h_pct": self._sf(price_change.get("h24")),
+            "pair_address": pair_address,
+            "holder": 0,
+            "holder_change_24h": 0,
         }
-        if min_liquidity > 0:
-            params["min_liquidity"] = min_liquidity
-        data = self._request("GET", "/defi/tokenlist", chain, params=params)
-        return normalize_list(data, ["tokens", "items", "data"])
 
-    def new_listings(self, chain: str, limit: int = 50) -> List[Dict[str, Any]]:
-        data = self._request("GET", "/defi/v2/tokens/new_listing", chain, params={"limit": limit})
-        return normalize_list(data, ["tokens", "items", "data"])
+    # ------------------------------------------------------------------
+    # token_security
+    # ------------------------------------------------------------------
+    def token_security(self, chain: str, address: str) -> Dict:
+        """
+        Return token security data via GoPlus.
+        Keys: is_mintable, freeze_authority, top_10_holder_percent, owner_address
+        """
+        chain_id = _GP_CHAIN_ID.get(chain.lower())
+        if not chain_id:
+            return {
+                "is_mintable": 0,
+                "freeze_authority": "0",
+                "top_10_holder_percent": 0.0,
+                "owner_address": "",
+            }
 
-    def token_overview(self, chain: str, address: str) -> Dict[str, Any]:
-        data = self._request("GET", "/defi/token_overview", chain, params={"address": address})
-        return data if isinstance(data, dict) else {}
+        if chain_id == "solana":
+            url = f"{_GP_BASE}/solana/token_security"
+            data = self._get(url, params={"contract_addresses": address})
+        else:
+            url = f"{_GP_BASE}/token_security/{chain_id}"
+            data = self._get(url, params={"contract_addresses": address})
 
-    def token_security(self, chain: str, address: str) -> Dict[str, Any]:
-        data = self._request("GET", "/defi/token_security", chain, params={"address": address})
-        return data if isinstance(data, dict) else {}
+        if not data or data.get("code") != 1:
+            return {
+                "is_mintable": 0,
+                "freeze_authority": "0",
+                "top_10_holder_percent": 0.0,
+                "owner_address": "",
+            }
 
-    def token_trades(self, chain: str, address: str, limit: int = 100) -> List[Dict[str, Any]]:
-        data = self._request(
-            "GET",
-            "/defi/txs/token",
-            chain,
-            params={"address": address, "offset": 0, "limit": limit},
-        )
-        return normalize_list(data, ["items", "txs", "data"])
+        result = data.get("result", {})
+        info = result.get(address.lower()) or result.get(address) or {}
 
-    def holder_list(self, chain: str, address: str, limit: int = 50) -> List[Dict[str, Any]]:
-        data = self._request("GET", "/defi/v3/token/holder", chain, params={"address": address, "limit": limit})
-        return normalize_list(data, ["holders", "items", "data"])
+        if chain_id == "solana":
+            return {
+                "is_mintable": int(info.get("mintable", 0)),
+                "freeze_authority": str(info.get("freezeable", "0")),
+                "top_10_holder_percent": self._sf(info.get("top10HolderPercent")),
+                "owner_address": info.get("ownerAddress", ""),
+            }
+        else:
+            return {
+                "is_mintable": int(info.get("is_mintable", 0)),
+                "freeze_authority": str(info.get("owner_change_balance", "0")),
+                "top_10_holder_percent": self._sf(info.get("top10HolderRatio", 0)) * 100,
+                "owner_address": info.get("owner_address", ""),
+            }
 
-    def top_traders(self, chain: str, address: str, limit: int = 10, time_frame: str = "24h") -> List[Dict[str, Any]]:
-        data = self._request(
-            "GET",
-            "/defi/v2/tokens/top_traders",
-            chain,
-            params={"address": address, "time_frame": time_frame, "sort_by": "volume", "limit": limit},
-        )
-        return normalize_list(data, ["items", "traders", "data"])
+    # ------------------------------------------------------------------
+    # token_trades
+    # ------------------------------------------------------------------
+    def token_trades(
+        self, chain: str, address: str, limit: int = 100
+    ) -> List[Dict]:
+        """
+        Return recent trades via GeckoTerminal pool trades.
+        Keys: type, side, value_usd, owner, block_unix_time
+        """
+        network = _GT_NETWORK.get(chain.lower())
+        if not network:
+            return []
 
-    def wallet_pnl(self, chain: str, wallet: str, duration: str = "7d") -> Dict[str, Any]:
-        data = self._request(
-            "GET",
-            "/wallet/v2/pnl/summary",
-            chain,
-            params={"wallet": wallet, "duration": duration},
-        )
-        return data if isinstance(data, dict) else {}
+        pair_address = self._pair_cache.get(address) or self._resolve_pair(chain, address)
+        if not pair_address:
+            return []
+
+        url = f"{_GT_BASE}/networks/{network}/pools/{pair_address}/trades"
+        data = self._get(url, params={"trade_volume_in_usd_greater_than": 0})
+        if not data:
+            return []
+
+        trades = []
+        for trade in data.get("data", [])[:limit]:
+            attrs = trade.get("attributes", {})
+            kind = attrs.get("kind", "buy")
+            ts = 0
+            raw_ts = attrs.get("block_timestamp", "")
+            if raw_ts:
+                try:
+                    import datetime as _dt
+                    ts = int(
+                        _dt.datetime.fromisoformat(
+                            raw_ts.replace("Z", "+00:00")
+                        ).timestamp()
+                    )
+                except Exception:
+                    pass
+            trades.append({
+                "type": "buy" if kind == "buy" else "sell",
+                "side": kind,
+                "value_usd": self._sf(attrs.get("volume_in_usd")),
+                "owner": attrs.get("tx_from_address", ""),
+                "block_unix_time": ts,
+            })
+        return trades
+
+    # ------------------------------------------------------------------
+    # holder_list
+    # ------------------------------------------------------------------
+    def holder_list(
+        self, chain: str, address: str, limit: int = 50
+    ) -> List[Dict]:
+        """
+        Return top holders.
+        Helius getTokenLargestAccounts for Solana; GoPlus for EVM.
+        Keys: owner, percent, balance
+        """
+        if chain.lower() == "solana":
+            return self._helius_holders(address, limit)
+        return self._goplus_holders(chain, address, limit)
+
+    def _helius_holders(self, address: str, limit: int) -> List[Dict]:
+        if not self.api_key:
+            return []
+        url = f"{_HELIUS_RPC}/?api-key={self.api_key}"
+        payload = {
+            "jsonrpc": "2.0",
+            "id": 1,
+            "method": "getTokenLargestAccounts",
+            "params": [address],
+        }
+        data = self._post(url, payload)
+        if not data:
+            return []
+        accounts = data.get("result", {}).get("value", [])
+        total = sum(self._sf(a.get("uiAmount", 0)) for a in accounts)
+        holders = []
+        for acc in accounts[:limit]:
+            amt = self._sf(acc.get("uiAmount", 0))
+            holders.append({
+                "owner": acc.get("address", ""),
+                "percent": (amt / total * 100) if total > 0 else 0.0,
+                "balance": amt,
+            })
+        return holders
+
+    def _goplus_holders(self, chain: str, address: str, limit: int) -> List[Dict]:
+        chain_id = _GP_CHAIN_ID.get(chain.lower())
+        if not chain_id:
+            return []
+        url = f"{_GP_BASE}/token_security/{chain_id}"
+        data = self._get(url, params={"contract_addresses": address})
+        if not data or data.get("code") != 1:
+            return []
+        result = data.get("result", {})
+        info = result.get(address.lower()) or result.get(address) or {}
+        holders_raw = info.get("holders", [])
+        return [
+            {
+                "owner": h.get("address", ""),
+                "percent": self._sf(h.get("percent", 0)) * 100,
+                "balance": self._sf(h.get("balance", 0)),
+            }
+            for h in holders_raw[:limit]
+        ]
+
+    # ------------------------------------------------------------------
+    # top_traders  (not available free)
+    # ------------------------------------------------------------------
+    def top_traders(
+        self,
+        chain: str,
+        address: str,
+        limit: int = 10,
+        time_frame: str = "24h",
+    ) -> List[Dict]:
+        """Not available via free APIs. Returns empty list; scorer handles gracefully."""
+        return []
+
+    # ------------------------------------------------------------------
+    # wallet_pnl
+    # ------------------------------------------------------------------
+    def wallet_pnl(
+        self, chain: str, wallet: str, duration: str = "7d"
+    ) -> Dict:
+        """
+        Return wallet PnL summary.
+        Keys: realized_profit, unrealized_profit, win_rate, total_trades
+        Helius Solana only; other chains return zero-filled dict.
+        """
+        empty = {
+            "realized_profit": 0.0,
+            "unrealized_profit": 0.0,
+            "win_rate": 0.0,
+            "total_trades": 0,
+        }
+        if chain.lower() != "solana" or not self.api_key:
+            return empty
+
+        url = f"{_HELIUS_API}/addresses/{wallet}/transactions"
+        data = self._get(url, params={"api-key": self.api_key, "type": "SWAP", "limit": 100})
+        if not data or not isinstance(data, list):
+            return empty
+
+        wins = 0
+        total = 0
+        realized = 0.0
+        for tx in data:
+            swap = tx.get("events", {}).get("swap", {})
+            if not swap:
+                continue
+            total += 1
+            out_val = sum(
+                self._sf(t.get("tokenAmount", 0))
+                for t in swap.get("tokenOutputs", [])
+            )
+            in_val = sum(
+                self._sf(t.get("tokenAmount", 0))
+                for t in swap.get("tokenInputs", [])
+            )
+            pnl = out_val - in_val
+            realized += pnl
+            if pnl > 0:
+                wins += 1
+
+        return {
+            "realized_profit": realized,
+            "unrealized_profit": 0.0,
+            "win_rate": (wins / total * 100) if total > 0 else 0.0,
+            "total_trades": total,
+        }
+
 
 
 def normalize_list(data: Any, nested_keys: Sequence[str]) -> List[Dict[str, Any]]:
@@ -1107,7 +1558,7 @@ class CrossSectionalML:
 class LiveScanner:
     def __init__(
         self,
-        client: BirdeyeClient,
+        client: AzalystClient,
         store: QuantStore,
         whale_threshold_usd: float = 10_000.0,
         include_new_listings: bool = True,
@@ -1267,7 +1718,7 @@ class LiveScanner:
 
 
 class OutcomeEvaluator:
-    def __init__(self, client: BirdeyeClient, store: QuantStore):
+    def __init__(self, client: AzalystClient, store: QuantStore):
         self.client = client
         self.store = store
 
@@ -1534,7 +1985,7 @@ def write_qwen_brief(
         "hit_rate": round(hit_count / len(outcomes), 4) if outcomes else None,
     }
     prompt = {
-        "task": "Write a concise quant analyst brief for these Birdeye token signals. "
+        "task": "Write a concise quant analyst brief for these Azalyst Alpha Scanner token signals. "
                 "Do not give financial advice. Identify strongest watches, risks, "
                 "false-positive risk, and what needs confirmation next.",
         "top_signals": top_signals,
@@ -1569,7 +2020,7 @@ def write_qwen_brief(
 
 def run_scan(args: argparse.Namespace) -> int:
     chains = parse_chains(args.chains)
-    client = BirdeyeClient(api_key=args.api_key, min_delay=args.min_delay)
+    client = AzalystClient(api_key=args.api_key, min_delay=args.min_delay)
     store = QuantStore(Path(args.db))
     try:
         scanner = LiveScanner(
@@ -1653,7 +2104,7 @@ def run_signals(args: argparse.Namespace) -> int:
 
 
 def run_evaluate(args: argparse.Namespace) -> int:
-    client = BirdeyeClient(api_key=args.api_key, min_delay=args.min_delay)
+    client = AzalystClient(api_key=args.api_key, min_delay=args.min_delay)
     store = QuantStore(Path(args.db))
     try:
         outcomes = OutcomeEvaluator(client, store).evaluate(
@@ -1692,12 +2143,12 @@ def run_outcomes(args: argparse.Namespace) -> int:
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Birdeye live quant scanner and ML signal engine")
+    parser = argparse.ArgumentParser(description="Azalyst Alpha Scanner — live quant scanner and ML signal engine")
     sub = parser.add_subparsers(dest="command", required=True)
 
     def add_common(p: argparse.ArgumentParser) -> None:
         p.add_argument("--db", default=str(DEFAULT_DB), help="SQLite database path")
-        p.add_argument("--api-key", default=os.getenv("BIRDEYE_API_KEY"), help="Birdeye API key")
+        p.add_argument("--api-key", default=os.getenv("HELIUS_API_KEY"), help="Birdeye API key")
         p.add_argument("--chains", default="all", help="Comma-separated chains or 'all'")
         p.add_argument("--limit", type=int, default=40, help="Token universe size per chain")
         p.add_argument("--trade-limit", type=int, default=100, help="Recent token trades to aggregate")
@@ -1731,7 +2182,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     evaluate = sub.add_parser("evaluate", help="Evaluate older signals as true or false")
     evaluate.add_argument("--db", default=str(DEFAULT_DB), help="SQLite database path")
-    evaluate.add_argument("--api-key", default=os.getenv("BIRDEYE_API_KEY"), help="Birdeye API key")
+    evaluate.add_argument("--api-key", default=os.getenv("HELIUS_API_KEY"), help="Birdeye API key")
     evaluate.add_argument("--min-delay", type=float, default=0.12, help="Minimum seconds between API calls")
     evaluate.add_argument("--horizon-min", type=int, default=60, help="Minutes after signal to check")
     evaluate.add_argument("--target-pct", type=float, default=10.0, help="Return threshold for true outcome")
