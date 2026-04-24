@@ -134,7 +134,6 @@ input.repo-in:focus{border-color:#ff6600}
     <div class="logo"><span class="live-dot" id="liveDot"></span>AZALYST<span>ALPHA SCANNER</span></div>
     <div class="tabs">
       <button class="tab active" onclick="tab('intel',this)">Intelligence<span class="badge live" id="bIntel">—</span></button>
-      <button class="tab" onclick="tab('traders',this)">Traders<span class="badge" id="bTraders">—</span></button>
       <button class="tab" onclick="tab('whales',this)">Whales<span class="badge" id="bWhale">—</span></button>
       <button class="tab" onclick="tab('gems',this)">Gems<span class="badge" id="bGem">—</span></button>
       <button class="tab" onclick="tab('security',this)">Security<span class="badge warn" id="bSecurity">—</span></button>
@@ -173,7 +172,7 @@ input.repo-in:focus{border-color:#ff6600}
   </div>
   <div class="g32">
     <div>
-      <div class="sh"><span class="sh-label">Pump Signals</span><span class="sh-meta" id="pumpMeta">binance usdt futures only</span></div>
+      <div class="sh"><span class="sh-label">Pump Signals</span><span class="sh-meta" id="pumpMeta">sorted by confidence</span></div>
       <div class="panel"><div class="ph"><span>Chain / Token / Indicators / Conf / Signal</span><span id="pumpCount">0</span></div><div id="pumpList"><div class="empty">Load a repository to see signals.</div></div></div>
     </div>
     <div>
@@ -188,10 +187,6 @@ input.repo-in:focus{border-color:#ff6600}
   <div class="panel"><div class="ph"><span>Chain / Token / Type / Wallet / Value</span><span id="whaleCount">0</span></div><div id="whaleList"><div class="empty">No data yet.</div></div></div>
 </div>
 
-<div class="page" id="tab-traders">
-  <div class="sh"><span class="sh-label">Top Traders Leaderboard</span><span class="sh-meta">most profitable — last 7 days</span></div>
-  <div class="panel"><div class="ph"><span># / Wallet / PnL / Volume / Win Rate</span><span id="traderCount">0</span></div><div id="tradersList"><div class="empty">No top trader data in latest scan.</div></div></div>
-</div>
 
 <div class="page" id="tab-security">
   <div class="sh"><span class="sh-label">Security Alerts</span><span class="sh-meta">rug risk — mintable / freeze / holder concentration</span></div>
@@ -269,7 +264,7 @@ input.repo-in:focus{border-color:#ff6600}
         <div class="row"><span style="color:#444;font-size:9px;letter-spacing:.08em">SCAN SCHEDULE</span><span style="color:#888">Every 15 min</span></div>
         <div class="row"><span style="color:#444;font-size:9px;letter-spacing:.08em">OUTCOME CHECK</span><span style="color:#888">60m / 10%</span></div>
         <div class="row"><span style="color:#444;font-size:9px;letter-spacing:.08em">CHAINS</span><span style="color:#888" id="opsChains">all supported</span></div>
-        <div class="row"><span style="color:#444;font-size:9px;letter-spacing:.08em">UNIVERSE</span><span style="color:#888" id="opsUniverse">Binance USDT futures</span></div>
+        <div class="row"><span style="color:#444;font-size:9px;letter-spacing:.08em">UNIVERSE</span><span style="color:#888" id="opsUniverse">Open multi-chain universe</span></div>
         <div class="row"><span style="color:#444;font-size:9px;letter-spacing:.08em">NEXT SCAN</span><span style="color:#888" id="opsNext">—</span></div>
         <div class="row"><span style="color:#444;font-size:9px;letter-spacing:.08em">SUCCESS RATE</span><span style="color:#888" id="opsRate">—</span></div>
         <div class="row"><span style="color:#444;font-size:9px;letter-spacing:.08em">DASHBOARD REFRESH</span><span style="color:#888">Every 60s</span></div>
@@ -302,28 +297,26 @@ function nextHour(){const n=new Date(),nx=new Date(n);const nm=Math.ceil((n.getM
 function usd(v){const n=parseFloat(v);if(isNaN(n))return'—';if(n>=1e6)return`$${(n/1e6).toFixed(1)}M`;if(n>=1e3)return`$${(n/1e3).toFixed(0)}K`;return`$${n.toFixed(0)}`;}
 function ctag(c){const k=(c||'unknown').toLowerCase().replace(/\s/g,'');return`<span class="chain-tag c-${k}">${k.toUpperCase()}</span>`;}
 
-function emptyIntel(){return{timestamp:'',chains:[],pumps:[],dumps:[],whales:[],gems:[],security:[],traders:[],outcomes:[],filters:{}};}
+function emptyIntel(){return{timestamp:'',chains:[],pumps:[],dumps:[],whales:[],gems:[],security:[],outcomes:[],filters:{}};}
 function parseQuantOutcomes(data){return(data.outcomes||[]).map(o=>({time:o.evaluated_ts,chain:(o.chain||'unknown').toLowerCase(),token:o.symbol||'?',label:o.label||'',direction:o.predicted_direction||'',ret:parseFloat(o.return_pct||0),horizon:o.horizon_min||0,ok:!!o.is_true}));}
 function parseQuantSignals(data){
   const r=emptyIntel();r.timestamp=data.generated_at||'';r.filters=data.filters||{};
-  const bo=!!r.filters.binance_usdt_only;const seen=new Set();
+  const seen=new Set();
   for(const s of(data.signals||[])){
     const chain=(s.chain||'unknown').toLowerCase(),token=s.symbol||'?',reasons=s.reasons||[],m=s.metrics||{};
     const ps=parseFloat(s.pump_score||0),ds=parseFloat(s.dump_score||0),as2=parseFloat(s.anomaly_score||0),rs=parseFloat(s.risk_score||0);
     const wn=parseFloat(m.whale_net_usd||0);seen.add(chain);
-    if(s.label==='pump_candidate'||s.label==='whale_accumulation'||ps>=(bo?40:50)||(bo&&as2>=70))
-      r.pumps.push({chain,token,confidence:ps/100,indicators:reasons,address:s.address,label:s.label,binanceSymbol:s.binance_symbol||''});
-    if(s.label==='dump_risk'||ds>=(bo?40:50))
+    if(s.label==='pump_candidate'||s.label==='whale_accumulation'||ps>=50)
+      r.pumps.push({chain,token,confidence:ps/100,indicators:reasons,address:s.address,label:s.label});
+    if(s.label==='dump_risk'||ds>=50)
       r.dumps.push({chain,token,confidence:ds/100,indicators:reasons,address:s.address,label:s.label});
     if(Math.abs(wn)>=10000||reasons.some(x=>String(x).includes('whale_')))
-      r.whales.push({chain,token,value:Math.abs(wn),type:wn>=0?'BUY':'SELL',wallet:s.address||''});
+      r.whales.push({chain,token,value:Math.abs(wn),type:wn>=0?'BUY':'SELL',address:s.address||''});
     if(s.label==='pump_candidate'||s.label==='anomaly_watch'||as2>=55||ps>=45)
-      r.gems.push({chain,token,score:Math.max(ps,as2),age:0,vol1h:parseFloat(m.volume_1h_usd||0),lp:parseFloat(m.liquidity_usd||0),label:s.label});
+      r.gems.push({chain,token,score:Math.max(ps,as2),vol1h:parseFloat(m.volume_1h_usd||0),lp:parseFloat(m.liquidity_usd||0),label:s.label});
     if(rs>=60||reasons.some(x=>String(x).includes('risk_')||String(x).includes('mintable')||String(x).includes('freeze')))
       r.security.push({chain,token,riskScore:rs,level:rs>=80?'HIGH':rs>=60?'MED':'LOW',factors:reasons.filter(x=>String(x).includes('risk_')||String(x).includes('mintable')||String(x).includes('freeze')||String(x).includes('holder'))});
   }
-  for(const t of(data.top_traders||[]))
-    r.traders.push({wallet:t.address||t.wallet||'?',pnl:parseFloat(t.realized_profit||t.pnl||0),volume:parseFloat(t.volume||0),trades:parseInt(t.trades||t.trade_count||0),winRate:parseFloat(t.win_rate||0)});
   r.chains=[...seen];
   r.pumps.sort((a,b)=>b.confidence-a.confidence);r.dumps.sort((a,b)=>b.confidence-a.confidence);
   r.whales.sort((a,b)=>b.value-a.value);r.gems.sort((a,b)=>b.score-a.score);r.security.sort((a,b)=>b.riskScore-a.riskScore);
@@ -379,10 +372,7 @@ function renderAll(intel){
   document.getElementById('bGem').textContent=intel.gems.length;
   document.getElementById('bSecurity').textContent=intel.security.length;
   document.getElementById('bSecurity').className='badge'+(intel.security.length>0?' warn':'');
-  document.getElementById('bTraders').textContent=intel.traders.length;
   document.getElementById('opsNext').textContent=nextHour();
-  document.getElementById('pumpMeta').textContent='sorted by confidence';
-  document.getElementById('opsUniverse').textContent='Open multi-chain universe (DexScreener + GeckoTerminal)';
   document.getElementById('opsChains').textContent=(intel.filters?.scan_chains||[]).length?intel.filters.scan_chains.join(', '):'all supported chains';
   document.getElementById('sbRepo').innerHTML=`REPO <span class="sb-val">${S.repo}</span>`;
 
@@ -398,7 +388,7 @@ function renderAll(intel){
 
   document.getElementById('whaleCount').textContent=intel.whales.length;
   document.getElementById('whaleList').innerHTML=intel.whales.length
-    ?intel.whales.map(w=>`<div class="row">${ctag(w.chain)}<span class="tok">${w.token||'—'}</span><span class="${w.type==='BUY'?'sig-p':'sig-d'}">${w.type}</span><span class="addr">${w.wallet?w.wallet.slice(0,8)+'…'+w.wallet.slice(-5):'—'}</span><span class="val">${usd(w.value)}</span></div>`).join('')
+    ?intel.whales.map(w=>`<div class="row">${ctag(w.chain)}<span class="tok">${w.token||'—'}</span><span class="${w.type==='BUY'?'sig-p':'sig-d'}">${w.type}</span><span class="addr">${w.address?w.address.slice(0,8)+'…'+w.address.slice(-5):'—'}</span><span class="val">${usd(w.value)}</span></div>`).join('')
     :'<div class="empty">No whale trades detected.</div>';
 
   document.getElementById('gemCount').textContent=intel.gems.length;
@@ -410,11 +400,6 @@ function renderAll(intel){
   document.getElementById('securityList').innerHTML=intel.security.length
     ?intel.security.slice(0,20).map(s=>`<div class="row"><span class="tok">${s.token}</span><span class="pill ${s.level==='HIGH'?'p-fail':s.level==='MED'?'p-nu':'p-ok'}">${s.level}</span><span class="val" style="font-size:10px">${s.riskScore.toFixed(0)}/100</span><span class="ind">${s.factors.join(' · ')||'—'}</span>${ctag(s.chain)}</div>`).join('')
     :'<div class="empty">No high-risk tokens detected.</div>';
-
-  document.getElementById('traderCount').textContent=intel.traders.length;
-  document.getElementById('tradersList').innerHTML=intel.traders.length
-    ?intel.traders.slice(0,20).map((t,i)=>`<div class="row"><span class="addr">#${i+1}</span><span class="addr">${t.wallet.slice(0,8)}…${t.wallet.slice(-5)}</span><span class="${t.pnl>=0?'sig-p':'sig-d'}">${usd(t.pnl)}</span><span class="val" style="font-size:10px">${usd(t.volume)}</span><span class="addr">${t.winRate>0?(t.winRate*100).toFixed(0)+'%':t.trades+' trades'}</span></div>`).join('')
-    :'<div class="empty">No top trader data in latest scan.</div>';
 
   const cm={};intel.pumps.forEach(p=>{cm[p.chain]=cm[p.chain]||{p:0,d:0};cm[p.chain].p++;});intel.dumps.forEach(d=>{cm[d.chain]=cm[d.chain]||{p:0,d:0};cm[d.chain].d++;});
   const chains=['solana','ethereum','base','arbitrum','bnb','avalanche','polygon','optimism','zksync'];
