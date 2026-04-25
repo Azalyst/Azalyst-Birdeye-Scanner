@@ -7,10 +7,26 @@ on:
         description: "Comma-separated chains"
         required: true
         default: "all"
+      scan_strategy:
+        description: "When chains=all, scan all chains or rotate 3-chain batches"
+        required: true
+        default: "rotating"
+        type: choice
+        options:
+          - rotating
+          - full
       limit:
         description: "Token universe size per chain"
         required: true
         default: "10"
+      trade_limit:
+        description: "Recent token trades to aggregate per token"
+        required: true
+        default: "35"
+      top_trader_limit:
+        description: "Top traders to ingest per token"
+        required: true
+        default: "5"
       horizon_min:
         description: "Outcome check horizon in minutes"
         required: true
@@ -34,7 +50,10 @@ jobs:
     runs-on: ubuntu-latest
     env:
       CHAINS: ${{ github.event.inputs.chains || 'all' }}
+      SCAN_STRATEGY: ${{ github.event.inputs.scan_strategy || 'rotating' }}
       LIMIT: ${{ github.event.inputs.limit || '10' }}
+      TRADE_LIMIT: ${{ github.event.inputs.trade_limit || '35' }}
+      TOP_TRADER_LIMIT: ${{ github.event.inputs.top_trader_limit || '5' }}
       HORIZON_MIN: ${{ github.event.inputs.horizon_min || '60' }}
       TARGET_PCT: ${{ github.event.inputs.target_pct || '10' }}
       HELIUS_API_KEY: ${{ secrets.HELIUS_API_KEY }}
@@ -56,29 +75,44 @@ jobs:
 
       - name: Run quant scan and evaluate old calls
         run: |
+          ALL_CHAINS="solana,ethereum,base,arbitrum,bnb,avalanche,polygon,optimism,zksync"
           RESOLVED_CHAINS="$CHAINS"
           if [ "$CHAINS" = "all" ]; then
-            SLOT=$(( (10#$(date -u +%M) / 15) % 3 ))
-            case "$SLOT" in
-              0) RESOLVED_CHAINS="solana,ethereum,base" ;;
-              1) RESOLVED_CHAINS="arbitrum,bnb,avalanche" ;;
-              2) RESOLVED_CHAINS="polygon,optimism,zksync" ;;
-            esac
+            if [ "$SCAN_STRATEGY" = "full" ]; then
+              RESOLVED_CHAINS="$ALL_CHAINS"
+            else
+              SLOT=$(( (10#$(date -u +%M) / 15) % 3 ))
+              case "$SLOT" in
+                0) RESOLVED_CHAINS="solana,ethereum,base" ;;
+                1) RESOLVED_CHAINS="arbitrum,bnb,avalanche" ;;
+                2) RESOLVED_CHAINS="polygon,optimism,zksync" ;;
+              esac
+            fi
           fi
 
           echo "Scanning chains: $RESOLVED_CHAINS"
+          echo "Trade limit: $TRADE_LIMIT"
+          echo "Top trader limit: $TOP_TRADER_LIMIT"
 
           python quant_signal_engine.py scan \
             --chains "$RESOLVED_CHAINS" \
             --limit "$LIMIT" \
-            --trade-limit 0 \
-            --top-trader-limit 0 \
-            --min-delay 0.05 \
+            --trade-limit "$TRADE_LIMIT" \
+            --top-trader-limit "$TOP_TRADER_LIMIT" \
+            --min-delay 0.12 \
             --evaluate \
             --outcome-horizon-min "$HORIZON_MIN" \
             --outcome-target-pct "$TARGET_PCT" \
             --qwen-brief \
             --show 25
+
+          if [ -f data/birdeye_quant.db ]; then
+            python -m ml schema
+            python -m ml cluster
+            python -m ml events
+            python -m ml score mode=recent
+            python -m ml export
+          fi
 
       - name: Commit dashboard data
         run: |
@@ -86,6 +120,7 @@ jobs:
           git config user.email "actions@github.com"
 
           git add -f data/birdeye_quant.db || true
+          git add -f reports/latest_ml_scores.json || true
           git add -f reports/latest_quant_signals.json reports/latest_quant_signals.csv || true
           git add -f reports/latest_quant_outcomes.json reports/latest_quant_outcomes.csv || true
           git add -f reports/latest_quant_brief.md || true

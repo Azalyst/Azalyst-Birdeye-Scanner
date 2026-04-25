@@ -24,7 +24,11 @@ ACTIONS = ("buy", "sell")
 LOOKBACK_MIN = 30
 
 
-def build_matrix(db_path: Path | str, labeled_only: bool = True):
+def build_matrix(
+    db_path: Path | str,
+    labeled_only: bool = True,
+    include_patterns: bool = True,
+):
     import numpy as np
     import pandas as pd
 
@@ -35,14 +39,16 @@ def build_matrix(db_path: Path | str, labeled_only: bool = True):
         if not rows:
             return pd.DataFrame(), np.array([]), [], []
 
-        pattern_ids = [r[0] for r in conn.execute(
-            "SELECT pattern_id FROM pattern_library ORDER BY pattern_id"
-        ).fetchall()]
+        pattern_ids: List[int] = []
         pattern_match_map: Dict[int, set] = {}
-        for snap_id, pid in conn.execute(
-            "SELECT snapshot_id, pattern_id FROM pattern_matches"
-        ).fetchall():
-            pattern_match_map.setdefault(snap_id, set()).add(pid)
+        if include_patterns:
+            pattern_ids = [r[0] for r in conn.execute(
+                "SELECT pattern_id FROM pattern_library ORDER BY pattern_id"
+            ).fetchall()]
+            for snap_id, pid in conn.execute(
+                "SELECT snapshot_id, pattern_id FROM pattern_matches"
+            ).fetchall():
+                pattern_match_map.setdefault(snap_id, set()).add(pid)
 
         cluster_counts = _cluster_counts(conn)
 
@@ -86,6 +92,7 @@ def _fetch_base(conn: sqlite3.Connection, labeled_only: bool):
           LEFT JOIN signals sig ON sig.snapshot_id = s.id
           LEFT JOIN signal_outcomes o ON o.snapshot_id = s.id
           {where}
+         ORDER BY s.ts ASC, s.id ASC
         """
     ).fetchall()
 

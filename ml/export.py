@@ -25,26 +25,31 @@ WINDOW_HOURS = 24
 def export(db_path: Path | str) -> Dict[str, Any]:
     metrics_path = Path("ml/metrics.json")
     metrics = json.loads(metrics_path.read_text()) if metrics_path.exists() else {"status": "no_metrics"}
+    active_model_version = metrics.get("trained_ts") if metrics.get("status") == "ok" else None
 
     conn = sqlite3.connect(str(db_path))
     conn.row_factory = sqlite3.Row
     try:
         since = (datetime.now(timezone.utc) - timedelta(hours=WINDOW_HOURS)).isoformat()
-        top_signals = [
-            dict(r) for r in conn.execute(
-                """
-                SELECT ms.snapshot_id, ms.ts, ms.chain, ms.address, ms.symbol,
-                       ms.ml_prob, ms.ml_direction,
-                       sig.pump_score, sig.dump_score, sig.anomaly_score, sig.label
-                  FROM ml_scores ms
-                  LEFT JOIN signals sig ON sig.snapshot_id = ms.snapshot_id
-                 WHERE ms.ts >= ?
-                 ORDER BY ms.ml_prob DESC
-                 LIMIT ?
-                """,
-                (since, TOP_SIGNAL_LIMIT),
-            ).fetchall()
-        ]
+        top_signals = []
+        if active_model_version:
+            top_signals = [
+                dict(r) for r in conn.execute(
+                    """
+                    SELECT ms.snapshot_id, ms.ts, ms.chain, ms.address, ms.symbol,
+                           ms.ml_prob, ms.ml_direction,
+                           ABS(ms.ml_prob - 0.5) * 2.0 AS ml_edge,
+                           sig.pump_score, sig.dump_score, sig.anomaly_score, sig.label
+                      FROM ml_scores ms
+                      LEFT JOIN signals sig ON sig.snapshot_id = ms.snapshot_id
+                     WHERE ms.ts >= ?
+                       AND ms.model_version = ?
+                     ORDER BY ml_edge DESC, ms.ts DESC
+                     LIMIT ?
+                    """,
+                    (since, active_model_version, TOP_SIGNAL_LIMIT),
+                ).fetchall()
+            ]
 
         top_patterns = [
             dict(r) for r in conn.execute(
@@ -79,6 +84,11 @@ def export(db_path: Path | str) -> Dict[str, Any]:
         payload = {
             "generated_at": datetime.now(timezone.utc).isoformat(),
             "model_metrics": metrics,
+            "scoring": {
+                "active_model_version": active_model_version,
+                "window_hours": WINDOW_HOURS,
+                "top_signal_sort": "confidence_distance_from_0.5",
+            },
             "cluster_counts": cluster_counts,
             "totals": {
                 "snapshots": totals["snapshots"] if totals else 0,

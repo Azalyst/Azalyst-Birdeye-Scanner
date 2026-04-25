@@ -1,21 +1,42 @@
 ts,chain,address,symbol,binance_symbol,binance_base_asset,binance_match_type,label,pump_score,dump_score,anomaly_score,smart_money_score,risk_score,reasons
-2026-04-25T16:00:58+00:00,ethereum,0x1bc1b348b74ca720171fa8fb392952c19f6293e0,POPSHIBA,,,,anomaly_watch,57.25,6.25,100.0,0.0,25.0,sudden_rise_price_plus_volume;risk:freeze_authority;ml_isolation_forest_anomaly
-2026-04-25T16:00:58+00:00,ethereum,0x0b212a593a10d99769f8326468cdec51b34946d7,POPCAT,,,,watch,57.25,6.25,65.0,0.0,25.0,sudden_rise_price_plus_volume;risk:freeze_authority
-2026-04-25T16:00:58+00:00,ethereum,0xf0daf52d210ee9b596fc16c8bfe1732d9b576781,uPEGR,,,,watch,48.51,6.25,65.0,0.0,25.0,sudden_rise_price_plus_volume;risk:freeze_authority
-2026-04-25T16:00:58+00:00,ethereum,0x44b28991b167582f18ba0259e0173176ca125505,uPEG,,,,watch,42.44,6.25,62.96,0.0,25.0,sudden_rise_price_plus_volume;risk:freeze_authority
-2026-04-25T16:00:58+00:00,ethereum,0xe6dbd77978bb0fccc541e35ecc2f8619f51954d2,X Tracker,,,,watch,17.14,9.25,58.22,0.0,37.0,risk:freeze_authority;risk:thin_liquidity
-2026-04-25T16:00:58+00:00,ethereum,0x8b922a186a620408e65e443a1e83b6d187224634,KIRA,,,,watch,17.05,26.74,57.2,0.0,37.0,risk:freeze_authority;risk:thin_liquidity
-2026-04-25T16:00:58+00:00,ethereum,0x69e4f1d84dd63e58423dfc198725e46e43689980,EXIST,,,,watch,21.25,21.9,54.35,0.0,25.0,risk:freeze_authority
-2026-04-25T16:00:58+00:00,ethereum,0x6931a6c244bea3f1cafe2506cecec5aaaa8265b1,X Tracker,,,,watch,17.05,24.2,53.25,0.0,37.0,risk:freeze_authority;risk:thin_liquidity
-2026-04-25T16:00:58+00:00,ethereum,0xf280b16ef293d8e534e370794ef26bf312694126,ASTEROID,,,,watch,11.84,6.25,42.47,0.0,25.0,risk:freeze_authority
-2026-04-25T16:00:58+00:00,ethereum,0x23b9ccb78d8c147c1c18b41e8a313ea0bfa962ce,E,,,,watch,21.25,6.99,39.92,0.0,25.0,risk:freeze_authority
-2026-04-25T16:00:58+00:00,ethereum,0xaff2565091e7207191dbe340b8528d02fa78d044,ASTEROID,,,,watch,2.33,11.67,38.06,0.0,25.0,risk:freeze_authority
-2026-04-25T16:00:58+00:00,ethereum,0xb3a0f70c913aa04404bd177be9e20b47613830b6,AIB,,,,watch,8.6,12.5,31.55,0.0,25.0,risk:freeze_authority
-2026-04-25T16:00:58+00:00,ethereum,0xa1fed187a45eccea7a7d1dacb6be96084a883feb,POOKIE,,,,watch,21.25,6.25,30.0,0.0,25.0,risk:freeze_authority
-2026-04-25T16:00:58+00:00,ethereum,0xce82213c4bae42e1c04880ea64a53eef73e195de,FLORK,,,,watch,12.04,7.81,29.16,0.0,25.0,risk:freeze_authority
-2026-04-25T16:00:58+00:00,ethereum,0xc7e4254a72169fdf7a2e080462724f2f642daf7e,ELIEN,,,,watch,0.0,19.75,28.57,0.0,25.0,risk:freeze_authority
-2026-04-25T16:00:58+00:00,ethereum,0xdfa208bb0b811cfbb5fa3ea98ec37aa86180e668,w🍖,,,,watch,0.0,17.37,28.46,0.0,25.0,risk:freeze_authority
-2026-04-25T16:00:58+00:00,ethereum,0x249130f5e2dd4cf278180c0df8273f3592ad1247,dmt-nat,,,,watch,0.75,11.31,17.48,0.0,25.0,risk:freeze_authority
-2026-04-25T16:00:58+00:00,ethereum,0x4d224452801aced8b2f0aebe155379bb5d594381,APE,,,,watch,0.0,10.95,13.58,0.0,25.0,risk:freeze_authority
-2026-04-25T16:00:58+00:00,ethereum,0xd8a271974e8edae9d7b58e3370dc1669427503f4,BLEND,,,,watch,0.0,6.25,8.31,0.0,25.0,risk:freeze_authority
-2026-04-25T16:00:58+00:00,ethereum,0x8de39b057cc6522230ab19c0205080a8663331ef,wojak,,,,watch,0.0,6.77,5.6,0.0,25.0,risk:freeze_authority
+2026-04-25T16:29:37+00:00,solana,y8f9WhcWuaYoXfNGkaRCp3DunfygQoWGHjRooVGpump,WIZ,,,,anomaly_watch,50.68,0.64,100.0,2.43,0.0,normal_watch;ml_isolation_forest_anomaly
+2026-04-25T16:29:37+00:00,base,0xac73bece342083aae54d2ef05c088207734b12f0,PENGACHU,,,,anomaly_watch,49.48,17.52,92.19,11.13,0.0,buy_pressure;ml_isolation_forest_anomaly
+2026-04-25T16:29:37+00:00,base,0xa0ff877e3d4f3a108b1b3d5eb3e4369301d2b2d7,w🍖,,,,anomaly_watch,0.0,12.5,91.38,0.0,50.0,risk:mintable;risk:freeze_authority;ml_isolation_forest_anomaly
+2026-04-25T16:29:37+00:00,solana,DJ8h2re3ovT9eX8Rw9RD3HoYPmKhHUeNac13FnGMLVaP,WIZ,,,,anomaly_watch,91.0,0.0,88.69,15.0,0.0,sudden_rise_price_plus_volume;buy_pressure;ml_isolation_forest_anomaly
+2026-04-25T16:29:37+00:00,ethereum,0xfc64a9c50e58cace6c737ac1de71aa9a2c30820b,DONAKD,,,,anomaly_watch,91.0,0.0,85.0,15.0,0.0,sudden_rise_price_plus_volume;buy_pressure;ml_isolation_forest_anomaly
+2026-04-25T16:29:37+00:00,ethereum,0x316ef115acc7d58a9dc07927c54c3ca9cb9a76f8,DONAKD,,,,anomaly_watch,79.31,0.0,85.0,15.0,0.0,sudden_rise_price_plus_volume;buy_pressure;ml_isolation_forest_anomaly
+2026-04-25T16:29:37+00:00,base,0x93b9fe9bc3b17fc6a62af07c05ee73af3ae0a13a,TROLL,,,,anomaly_watch,74.97,3.0,84.88,5.12,12.0,sudden_rise_price_plus_volume;buy_pressure;risk:thin_liquidity;ml_isolation_forest_anomaly
+2026-04-25T16:29:37+00:00,solana,47y76BkcH38bocSSM7mDJAHzBT7ScN8rnZcoPTfaLcu2,Peko,,,,anomaly_watch,30.0,61.0,83.49,0.0,0.0,selloff_distribution;ml_isolation_forest_anomaly
+2026-04-25T16:29:37+00:00,solana,Ffiebdt934mSokfCk12FognPxYPGsbQCeEfmmBU6QMQ1,Peko,,,,anomaly_watch,30.0,56.94,79.96,0.0,0.0,selloff_distribution;ml_isolation_forest_anomaly
+2026-04-25T16:29:37+00:00,solana,2iLxgJrpw7WTCUesZfXhJwFP8QHn2VTqfiTAuvK6pump,NACHO FUND,,,,anomaly_watch,30.0,52.79,76.99,0.0,0.0,selloff_distribution;ml_isolation_forest_anomaly
+2026-04-25T16:29:37+00:00,ethereum,0xe4292692dbb9b0b1cee8d9f83f575a460451992e,🌠ZEFIN,,,,anomaly_watch,71.52,0.0,75.69,15.0,0.0,sudden_rise_price_plus_volume;buy_pressure;ml_isolation_forest_anomaly
+2026-04-25T16:29:37+00:00,solana,HGxYWHhDNGFh7FpoJTuwgNuB7VAHtpeBVBo1u73Tpump,mexicanunc,,,,anomaly_watch,11.18,17.15,75.34,0.0,0.0,normal_watch;ml_isolation_forest_anomaly
+2026-04-25T16:29:37+00:00,base,0x1e28fcf3ef2fde987955e544283558bf3c6b2baf,USOA,,,,anomaly_watch,37.44,0.0,71.29,15.0,0.0,buy_pressure;ml_isolation_forest_anomaly
+2026-04-25T16:29:37+00:00,base,0x9e062199a35c6c0b7546f930af7af9429816e461,do not buy me,,,,anomaly_watch,25.8,42.27,71.02,0.0,12.0,risk:thin_liquidity;ml_isolation_forest_anomaly
+2026-04-25T16:29:37+00:00,base,0x5f980dcfc4c0fa3911554cf5ab288ed0eb13dba3,GITLAWB,,,,watch,29.25,0.0,65.6,15.0,0.0,buy_pressure
+2026-04-25T16:29:37+00:00,solana,339Wap3d7LAHBbfiPqSHLrJ7QN6T9eaE4X3PwDSBpump,Pippen 2,,,,watch,30.0,36.0,65.0,0.0,0.0,normal_watch
+2026-04-25T16:29:37+00:00,ethereum,0x415267bd0dc3bae89aa023a63168c5541c7972bc,DONAKD,,,,watch,30.0,27.15,65.0,0.0,0.0,normal_watch
+2026-04-25T16:29:37+00:00,solana,6Xn9jx6xFr1z5PjmjoeyDZcFqoPYhkLKvfhV5yjaTVP3,DONALDMUSK,,,,watch,30.33,20.93,62.8,0.19,0.0,normal_watch
+2026-04-25T16:29:37+00:00,base,0x4200000000000000000000000000000000000006,WETH,,,,watch,30.0,16.95,62.69,0.0,0.0,normal_watch
+2026-04-25T16:29:37+00:00,base,0x92ac2c8979e538af6e5c4a21df652ff8ca24e324,VAR,,,,watch,60.69,0.0,58.85,15.0,0.0,buy_pressure
+2026-04-25T16:29:37+00:00,ethereum,0x279525859e641e91ad134c01920becb950c61c30,DONAKD J. TRUMP,,,,watch,60.25,0.0,58.16,15.0,0.0,buy_pressure
+2026-04-25T16:29:37+00:00,solana,FDY6xMfZTtsu9rXqmhqtdL25bBzbtrNJfEFpv8Nmpump,Reverse Grok,,,,watch,55.0,0.0,50.0,15.0,0.0,buy_pressure
+2026-04-25T16:29:37+00:00,ethereum,0x83b5ef0287d0740f62aa812f5ca85b4626bd6949,DONAKD,,,,watch,55.0,0.0,50.0,15.0,0.0,buy_pressure
+2026-04-25T16:29:37+00:00,ethereum,0xb7aa720f301b91127d17dccb01a9a306b29bc31d,DONAKD,,,,watch,55.0,0.0,50.0,15.0,0.0,buy_pressure
+2026-04-25T16:29:37+00:00,ethereum,0xc798322fdc043790673aa996c6ac08106c33b429,USD1,,,,watch,55.0,0.0,50.0,15.0,0.0,buy_pressure
+2026-04-25T16:29:37+00:00,base,0x16b40dd0311b1e5df5e8e4cd39be92c966b6eb07,UEI,,,,watch,55.0,0.0,50.0,15.0,0.0,buy_pressure
+2026-04-25T16:29:37+00:00,base,0x1e5d0f6bd5be75c11569f5e5d3f751053e294ba3,SIBYL,,,,watch,55.0,0.0,50.0,15.0,0.0,buy_pressure
+2026-04-25T16:29:37+00:00,base,0xafa68e8e9ca3d7b2542e5fa9a2a0084fa8220b07,CAT,,,,watch,55.0,0.0,50.0,15.0,0.0,buy_pressure
+2026-04-25T16:29:37+00:00,ethereum,0x27bcab089fbb267e5a98904a6f8becc822908d81,DONAKD,,,,watch,30.0,15.35,53.87,0.0,0.0,normal_watch
+2026-04-25T16:29:37+00:00,ethereum,0xed11631ec63319235d1aadb1c18a9c4d809a4344,DONAKD,,,,watch,25.8,14.55,52.7,0.0,12.0,risk:thin_liquidity
+2026-04-25T16:29:37+00:00,solana,8PkiRsop3HrZnFd5rss9nVGJBjSUAeqA1W6MRropump,BLZ,,,,watch,30.18,13.42,51.0,0.1,0.0,normal_watch
+2026-04-25T16:29:37+00:00,ethereum,0x8de39b057cc6522230ab19c0205080a8663331ef,wojak,,,,watch,3.88,21.39,47.44,0.0,0.0,normal_watch
+2026-04-25T16:29:37+00:00,solana,FoHrbgTsVDyDuFEFXiuRErd2h6HmvB1pdFoSRzBFpump,rONY,,,,watch,30.0,10.77,46.76,0.0,0.0,normal_watch
+2026-04-25T16:29:37+00:00,ethereum,0xf280b16ef293d8e534e370794ef26bf312694126,ASTEROID,,,,watch,22.48,0.18,43.76,4.55,0.0,normal_watch
+2026-04-25T16:29:37+00:00,solana,CGEDT9QZDvvH5GmVkWJH2BXiMJqMJySC9ihWyr7Spump,BURNIE,,,,watch,6.68,9.83,41.99,1.23,0.0,normal_watch
+2026-04-25T16:29:37+00:00,solana,6biX3XQcoBtCecTETHkETw73WEtdbwT2BWYENqAvpump,DONAKD,,,,watch,30.0,5.71,38.89,0.0,0.0,normal_watch
+2026-04-25T16:29:37+00:00,solana,Hon2rHAiqkcDtUzL5gA2vjXPr7T1MPCK2UT2AHKCpump,MAGA,,,,watch,3.1,3.62,33.34,0.0,0.0,normal_watch
+2026-04-25T16:29:37+00:00,base,0x16332535e2c27da578bc2e82beb09ce9d3c8eb07,ClawBank,,,,watch,28.4,0.0,29.86,13.24,0.0,buy_pressure
+2026-04-25T16:29:37+00:00,base,0x797f214a2cd64a4963a91fa21c8c55ec3eba4714,SIBYL,,,,watch,3.12,8.22,29.7,0.0,0.0,normal_watch
+2026-04-25T16:29:37+00:00,ethereum,0xaff2565091e7207191dbe340b8528d02fa78d044,ASTEROID,,,,watch,12.58,0.07,28.99,0.83,0.0,normal_watch
+2026-04-25T16:29:37+00:00,ethereum,0x4d224452801aced8b2f0aebe155379bb5d594381,APE,,,,watch,4.73,0.32,17.19,0.94,0.0,normal_watch

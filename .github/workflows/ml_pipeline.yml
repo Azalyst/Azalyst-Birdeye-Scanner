@@ -21,7 +21,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: azalyst-ml-pipeline
+  group: azalyst-signal-engine
   cancel-in-progress: false
 
 jobs:

@@ -17,12 +17,20 @@ from pathlib import Path
 from typing import Dict
 
 from ml.features import build_matrix
-from ml.train import MODEL_PATH
+from ml.train import METRICS_PATH, MODEL_PATH
 
 DEFAULT_RECENT_HOURS = 24
 
 
 def score(db_path: Path | str, mode: str = "recent", hours: int = DEFAULT_RECENT_HOURS) -> Dict[str, int]:
+    metrics = None
+    if METRICS_PATH.exists():
+        try:
+            metrics = json.loads(METRICS_PATH.read_text())
+        except json.JSONDecodeError:
+            metrics = None
+    if metrics and metrics.get("status") != "ok":
+        return {"status": f"model_{metrics.get('status')}", "scored": 0}
     if not MODEL_PATH.exists():
         return {"status": "no_model", "scored": 0}
 
@@ -31,8 +39,14 @@ def score(db_path: Path | str, mode: str = "recent", hours: int = DEFAULT_RECENT
     model = bundle["model"]
     feature_names = bundle["feature_names"]
     model_version = bundle.get("trained_ts", "unknown")
+    if metrics and metrics.get("trained_ts") and metrics.get("trained_ts") != model_version:
+        return {"status": "stale_model_artifact", "scored": 0}
 
-    df, _y, snapshot_ids, built_names = build_matrix(db_path, labeled_only=False)
+    df, _y, snapshot_ids, built_names = build_matrix(
+        db_path,
+        labeled_only=False,
+        include_patterns=False,
+    )
     if df.empty:
         return {"status": "empty", "scored": 0}
 
@@ -41,7 +55,7 @@ def score(db_path: Path | str, mode: str = "recent", hours: int = DEFAULT_RECENT
             df[col] = 0.0
     df = df[feature_names]
 
-    probs = model.predict_proba(df.values)[:, 1]
+    probs = model.predict_proba(df)[:, 1]
 
     conn = sqlite3.connect(str(db_path))
     conn.row_factory = sqlite3.Row

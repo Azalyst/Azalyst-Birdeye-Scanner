@@ -92,6 +92,7 @@ input.repo-in:focus{border-color:#ff6600}
 .badge.warn{background:#1a0000;color:#ff4444}
 .heatmap{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;padding:6px}
 .hm-cell{background:#050505;border:1px solid #1a1a1a;padding:10px 12px;position:relative}
+.hm-cell.dim{opacity:.35}
 .hm-cell::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:#111}
 .hm-cell.hot-pump::after{background:#00aa2a}
 .hm-cell.hot-dump::after{background:#cc2200}
@@ -189,7 +190,7 @@ input.repo-in:focus{border-color:#ff6600}
 
 
 <div class="page" id="tab-security">
-  <div class="sh"><span class="sh-label">Security Alerts</span><span class="sh-meta">rug risk — mintable / freeze / holder concentration</span></div>
+  <div class="sh"><span class="sh-label">Security Alerts</span><span class="sh-meta">high-risk only - score >=60 or multiple risk flags</span></div>
   <div class="panel"><div class="ph"><span>Token / Risk / Score / Factors / Chain</span><span id="securityCount">0</span></div><div id="securityList"><div class="empty">No high-risk tokens detected.</div></div></div>
 </div>
 
@@ -285,6 +286,7 @@ input.repo-in:focus{border-color:#ff6600}
 
 <script>
 const S={repo:'Azalyst/Azalyst-Alpha-Scanner',token:'',runs:[],reports:[],parsed:null,feed:[],outcomes:[],ml:null,refreshTimer:null,countdown:60};
+const SUPPORTED_CHAINS=['solana','ethereum','base','arbitrum','bnb','avalanche','polygon','optimism','zksync'];
 
 function updateClock(){const n=new Date(),ist=new Date(n.getTime()+(5.5*3600000));const h=ist.getUTCHours().toString().padStart(2,'0'),m=ist.getUTCMinutes().toString().padStart(2,'0'),s=ist.getUTCSeconds().toString().padStart(2,'0');document.getElementById('clock').textContent=`${h}:${m}:${s} IST`;}
 setInterval(updateClock,1000);updateClock();
@@ -301,10 +303,12 @@ function emptyIntel(){return{timestamp:'',chains:[],pumps:[],dumps:[],whales:[],
 function parseQuantOutcomes(data){return(data.outcomes||[]).map(o=>({time:o.evaluated_ts,chain:(o.chain||'unknown').toLowerCase(),token:o.symbol||'?',label:o.label||'',direction:o.predicted_direction||'',ret:parseFloat(o.return_pct||0),horizon:o.horizon_min||0,ok:!!o.is_true}));}
 function parseQuantSignals(data){
   const r=emptyIntel();r.timestamp=data.generated_at||'';r.filters=data.filters||{};
+  const filterChains=(r.filters.scan_chains||[]).map(c=>String(c||'unknown').toLowerCase());
   const seen=new Set();
   for(const s of(data.signals||[])){
     const chain=(s.chain||'unknown').toLowerCase(),token=s.symbol||'?',reasons=s.reasons||[],m=s.metrics||{};
     const ps=parseFloat(s.pump_score||0),ds=parseFloat(s.dump_score||0),as2=parseFloat(s.anomaly_score||0),rs=parseFloat(s.risk_score||0);
+    const riskFactors=reasons.filter(x=>String(x).includes('risk_')||String(x).includes('mintable')||String(x).includes('freeze')||String(x).includes('holder'));
     const wn=parseFloat(m.whale_net_usd||0);seen.add(chain);
     if(s.label==='pump_candidate'||s.label==='whale_accumulation'||ps>=50)
       r.pumps.push({chain,token,confidence:ps/100,indicators:reasons,address:s.address,label:s.label});
@@ -314,10 +318,10 @@ function parseQuantSignals(data){
       r.whales.push({chain,token,value:Math.abs(wn),type:wn>=0?'BUY':'SELL',address:s.address||''});
     if(s.label==='pump_candidate'||s.label==='anomaly_watch'||as2>=55||ps>=45)
       r.gems.push({chain,token,score:Math.max(ps,as2),vol1h:parseFloat(m.volume_1h_usd||0),lp:parseFloat(m.liquidity_usd||0),label:s.label});
-    if(rs>=60||reasons.some(x=>String(x).includes('risk_')||String(x).includes('mintable')||String(x).includes('freeze')))
-      r.security.push({chain,token,riskScore:rs,level:rs>=80?'HIGH':rs>=60?'MED':'LOW',factors:reasons.filter(x=>String(x).includes('risk_')||String(x).includes('mintable')||String(x).includes('freeze')||String(x).includes('holder'))});
+    if(s.label==='avoid_high_risk'||rs>=60||riskFactors.length>=2)
+      r.security.push({chain,token,riskScore:rs,level:rs>=80?'HIGH':rs>=60?'MED':'LOW',factors:riskFactors});
   }
-  r.chains=[...seen];
+  r.chains=[...new Set([...filterChains,...seen])];
   r.pumps.sort((a,b)=>b.confidence-a.confidence);r.dumps.sort((a,b)=>b.confidence-a.confidence);
   r.whales.sort((a,b)=>b.value-a.value);r.gems.sort((a,b)=>b.score-a.score);r.security.sort((a,b)=>b.riskScore-a.riskScore);
   return r;
@@ -359,13 +363,16 @@ function renderTicker(intel){
 
 function renderAll(intel){
   if(!intel)return;
+  const scannedChains=intel.chains?.length?intel.chains:(intel.filters?.scan_chains||[]).map(c=>String(c||'unknown').toLowerCase());
+  const scannedSet=new Set(scannedChains);
   document.getElementById('sPump').textContent=intel.pumps.length||'0';
   document.getElementById('sDump').textContent=intel.dumps.length||'0';
   document.getElementById('sWhale').textContent=intel.whales.length||'0';
   document.getElementById('sGem').textContent=intel.gems.filter(g=>g.score>50).length||'0';
-  document.getElementById('sChain').textContent=[...new Set([...intel.pumps,...intel.dumps,...intel.whales,...intel.gems].map(x=>x.chain))].length||'0';
+  document.getElementById('sChain').textContent=scannedChains.length||'0';
   document.getElementById('sLast').textContent=intel.timestamp?rel(intel.timestamp):rel(S.runs[0]?.created_at);
   document.getElementById('sNext').textContent='next: '+nextHour();
+  document.getElementById('pumpMeta').textContent=scannedChains.length?`current batch: ${scannedChains.join(', ')}`:'sorted by confidence';
   document.getElementById('bIntel').textContent=intel.pumps.length+intel.dumps.length;
   document.getElementById('bIntel').className='badge'+(intel.pumps.length>0?' live':'');
   document.getElementById('bWhale').textContent=intel.whales.length;
@@ -373,7 +380,8 @@ function renderAll(intel){
   document.getElementById('bSecurity').textContent=intel.security.length;
   document.getElementById('bSecurity').className='badge'+(intel.security.length>0?' warn':'');
   document.getElementById('opsNext').textContent=nextHour();
-  document.getElementById('opsChains').textContent=(intel.filters?.scan_chains||[]).length?intel.filters.scan_chains.join(', '):'all supported chains';
+  document.getElementById('opsChains').textContent=scannedChains.length?`${scannedChains.length}/${SUPPORTED_CHAINS.length} chains in current batch: ${scannedChains.join(', ')}`:'all supported chains';
+  document.getElementById('opsUniverse').textContent=scannedChains.length&&scannedChains.length<SUPPORTED_CHAINS.length?'Rotating batch universe':'Open multi-chain universe';
   document.getElementById('sbRepo').innerHTML=`REPO <span class="sb-val">${S.repo}</span>`;
 
   document.getElementById('pumpCount').textContent=intel.pumps.length;
@@ -402,8 +410,7 @@ function renderAll(intel){
     :'<div class="empty">No high-risk tokens detected.</div>';
 
   const cm={};intel.pumps.forEach(p=>{cm[p.chain]=cm[p.chain]||{p:0,d:0};cm[p.chain].p++;});intel.dumps.forEach(d=>{cm[d.chain]=cm[d.chain]||{p:0,d:0};cm[d.chain].d++;});
-  const chains=['solana','ethereum','base','arbitrum','bnb','avalanche','polygon','optimism','zksync'];
-  document.getElementById('chainMap').innerHTML=chains.map(c=>{const d=cm[c]||{p:0,d:0};const total=d.p+d.d||1;const cls=d.p>0&&d.d>0?'hot-both':d.p>0?'hot-pump':d.d>0?'hot-dump':'';return`<div class="hm-cell ${cls}"><div class="hm-name">${c.toUpperCase()}</div><div class="hm-nums"><div><div class="hm-p">${d.p}</div><div class="hm-sub">pump</div></div><div><div class="hm-d">${d.d}</div><div class="hm-sub">dump</div></div></div><div class="hm-bar"><div class="hm-bp" style="width:${(d.p/total*100).toFixed(0)}%"></div><div class="hm-bd" style="width:${(d.d/total*100).toFixed(0)}%"></div></div></div>`;}).join('');
+  document.getElementById('chainMap').innerHTML=SUPPORTED_CHAINS.map(c=>{const d=cm[c]||{p:0,d:0};const scanned=scannedSet.has(c);const total=d.p+d.d||1;const cls=scanned?(d.p>0&&d.d>0?'hot-both':d.p>0?'hot-pump':d.d>0?'hot-dump':''):'dim';const pumpVal=scanned?d.p:'-';const dumpVal=scanned?d.d:'-';const pumpSub=scanned?'pump':'not';const dumpSub=scanned?'dump':'scanned';return`<div class="hm-cell ${cls}"><div class="hm-name">${c.toUpperCase()}</div><div class="hm-nums"><div><div class="hm-p">${pumpVal}</div><div class="hm-sub">${pumpSub}</div></div><div><div class="hm-d">${dumpVal}</div><div class="hm-sub">${dumpSub}</div></div></div><div class="hm-bar"><div class="hm-bp" style="width:${scanned?(d.p/total*100).toFixed(0):0}%"></div><div class="hm-bd" style="width:${scanned?(d.d/total*100).toFixed(0):0}%"></div></div></div>`;}).join('');
 
   const rh=S.runs.filter(r=>r.conclusion!=='skipped');const l10=rh.slice(0,10);const ok=l10.filter(r=>r.conclusion==='success').length;
   document.getElementById('opsRate').textContent=l10.length?`${Math.round(ok/l10.length*100)}% (${ok}/${l10.length})`:'—';
@@ -416,6 +423,8 @@ function renderML(){
   const ml=S.ml;const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
   if(!ml){set('bML','—');set('mlStatus','no data');document.getElementById('mlSigList').innerHTML='<div class="empty">ML pipeline has not run yet.</div>';document.getElementById('mlPatList').innerHTML='<div class="empty">No patterns mined.</div>';return;}
   const mm=ml.model_metrics||{},tot=ml.totals||{},clusters=ml.cluster_counts||{},sigs=ml.top_signals||[],pats=ml.top_patterns||[];
+  document.getElementById('mlMeta').textContent=mm.validation_mode==='time_holdout'?'time-ordered holdout validation + recent scoring':'model status + mined patterns';
+  document.getElementById('mlSigMeta').textContent=ml.scoring?.window_hours?`current model, last ${ml.scoring.window_hours}h`:'last 24h';
   set('bML',sigs.length||pats.length||'0');set('mlStatus',(mm.status||'unknown').toUpperCase());set('mlTrained',mm.trained_ts?rel(mm.trained_ts):'—');
   set('mlAuc',mm.roc_auc!=null?Number(mm.roc_auc).toFixed(3):'—');set('mlF1','f1: '+(mm.f1!=null?Number(mm.f1).toFixed(3):'—'));
   set('mlLabeled',mm.labeled_rows!=null?mm.labeled_rows:(tot.labeled_outcomes||0));set('mlPosRate','pos rate: '+(mm.positive_rate!=null?(Number(mm.positive_rate)*100).toFixed(1)+'%':'—'));

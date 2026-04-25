@@ -15,7 +15,7 @@ on:
     types: [created]
 
 concurrency:
-  group: azalyst-nim-agent
+  group: azalyst-signal-engine
   cancel-in-progress: false
 
 jobs:

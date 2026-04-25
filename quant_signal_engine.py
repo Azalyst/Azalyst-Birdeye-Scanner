@@ -96,6 +96,23 @@ def to_int(value: Any, default: int = 0) -> int:
     return int(to_float(value, float(default)))
 
 
+def flag_int(value: Any) -> int:
+    if isinstance(value, dict):
+        for key in ("status", "value", "enabled", "result"):
+            if key in value:
+                return flag_int(value.get(key))
+        return 0
+    if isinstance(value, bool):
+        return int(value)
+    if isinstance(value, str):
+        normalized = value.strip().lower()
+        if normalized in {"", "0", "false", "no", "off", "null", "none"}:
+            return 0
+        if normalized in {"1", "true", "yes", "on"}:
+            return 1
+    return 1 if to_float(value, 0.0) != 0 else 0
+
+
 def first_value(data: Dict[str, Any], keys: Sequence[str], default: Any = None) -> Any:
     for key in keys:
         if key in data and data[key] not in (None, ""):
@@ -160,6 +177,14 @@ def compact_address(address: str) -> str:
     if len(address) <= 14:
         return address
     return f"{address[:6]}...{address[-4:]}"
+
+
+def console_safe(text: Any) -> str:
+    encoding = getattr(sys.stdout, "encoding", None) or "utf-8"
+    try:
+        return str(text).encode(encoding, errors="replace").decode(encoding, errors="replace")
+    except Exception:
+        return str(text).encode("ascii", errors="replace").decode("ascii", errors="replace")
 
 
 def normalize_symbol(value: Any) -> str:
@@ -370,14 +395,25 @@ class AzalystClient:
         self._last_call = time.time()
 
     def _get(self, url: str, params: Optional[Dict] = None) -> Optional[Dict]:
-        self._throttle()
-        try:
-            resp = requests.get(url, params=params, timeout=self.timeout)
-            resp.raise_for_status()
-            return resp.json()
-        except Exception as exc:
-            logging.getLogger("azalyst_client").warning("GET %s failed: %s", url, exc)
-            return None
+        last_exc: Optional[Exception] = None
+        for attempt in range(3):
+            self._throttle()
+            try:
+                resp = requests.get(url, params=params, timeout=self.timeout)
+                resp.raise_for_status()
+                return resp.json()
+            except requests.HTTPError as exc:
+                last_exc = exc
+                if exc.response is not None and exc.response.status_code == 429 and attempt < 2:
+                    retry_after = to_float(exc.response.headers.get("Retry-After"), 0.0)
+                    time.sleep(max(retry_after, self.min_delay * (attempt + 2), 1.0))
+                    continue
+                break
+            except Exception as exc:
+                last_exc = exc
+                break
+        logging.getLogger("azalyst_client").warning("GET %s failed: %s", url, last_exc)
+        return None
 
     def _post(self, url: str, payload: Dict) -> Optional[Dict]:
         self._throttle()
@@ -428,7 +464,7 @@ class AzalystClient:
             return []
 
         results: List[Dict] = []
-        for pool in data.get("data", [])[:limit]:
+        for pool in (data.get("data") or [])[:limit]:
             attrs = pool.get("attributes", {})
             relationships = pool.get("relationships", {})
             base_data = relationships.get("base_token", {}).get("data", {})
@@ -494,7 +530,7 @@ class AzalystClient:
             return []
 
         results: List[Dict] = []
-        for pool in data.get("data", [])[:limit]:
+        for pool in (data.get("data") or [])[:limit]:
             attrs = pool.get("attributes", {})
             liq = self._sf(attrs.get("reserve_in_usd"))
             if liq < min_liquidity:
@@ -549,7 +585,7 @@ class AzalystClient:
             return []
 
         results: List[Dict] = []
-        for pool in data.get("data", [])[:limit]:
+        for pool in (data.get("data") or [])[:limit]:
             attrs = pool.get("attributes", {})
             relationships = pool.get("relationships", {})
             base_data = relationships.get("base_token", {}).get("data", {})
@@ -602,12 +638,13 @@ class AzalystClient:
             return {"error": "DexScreener request failed", "address": address}
 
         ds_chain = _DS_CHAIN.get(chain.lower(), chain.lower())
+        pairs_raw = data.get("pairs") or []
         pairs = [
-            p for p in data.get("pairs", [])
+            p for p in pairs_raw
             if p.get("chainId", "").lower() == ds_chain
         ]
         if not pairs:
-            pairs = data.get("pairs", [])
+            pairs = pairs_raw
         if not pairs:
             return {"error": "No pairs found", "address": address}
 
@@ -682,15 +719,15 @@ class AzalystClient:
 
         if chain_id == "solana":
             return {
-                "is_mintable": int(info.get("mintable", 0)),
-                "freeze_authority": str(info.get("freezeable", "0")),
+                "is_mintable": flag_int(info.get("mintable", 0)),
+                "freeze_authority": str(flag_int(info.get("freezable", "0"))),
                 "top_10_holder_percent": self._sf(info.get("top10HolderPercent")),
                 "owner_address": info.get("ownerAddress", ""),
             }
         else:
             return {
-                "is_mintable": int(info.get("is_mintable", 0)),
-                "freeze_authority": str(info.get("owner_change_balance", "0")),
+                "is_mintable": flag_int(info.get("is_mintable", 0)),
+                "freeze_authority": str(flag_int(info.get("owner_change_balance", "0"))),
                 "top_10_holder_percent": self._sf(info.get("top10HolderRatio", 0)) * 100,
                 "owner_address": info.get("owner_address", ""),
             }
@@ -719,7 +756,7 @@ class AzalystClient:
             return []
 
         trades = []
-        for trade in data.get("data", [])[:limit]:
+        for trade in (data.get("data") or [])[:limit]:
             attrs = trade.get("attributes", {})
             kind = attrs.get("kind", "buy")
             ts = 0
@@ -771,7 +808,7 @@ class AzalystClient:
         data = self._post(url, payload)
         if not data:
             return []
-        accounts = data.get("result", {}).get("value", [])
+        accounts = data.get("result", {}).get("value") or []
         total = sum(self._sf(a.get("uiAmount", 0)) for a in accounts)
         holders = []
         for acc in accounts[:limit]:
@@ -793,7 +830,7 @@ class AzalystClient:
             return []
         result = data.get("result", {})
         info = result.get(address.lower()) or result.get(address) or {}
-        holders_raw = info.get("holders", [])
+        holders_raw = info.get("holders") or []
         return [
             {
                 "owner": h.get("address", ""),
@@ -851,11 +888,11 @@ class AzalystClient:
             total += 1
             out_val = sum(
                 self._sf(t.get("tokenAmount", 0))
-                for t in swap.get("tokenOutputs", [])
+                for t in (swap.get("tokenOutputs") or [])
             )
             in_val = sum(
                 self._sf(t.get("tokenAmount", 0))
-                for t in swap.get("tokenInputs", [])
+                for t in (swap.get("tokenInputs") or [])
             )
             pnl = out_val - in_val
             realized += pnl
@@ -1273,8 +1310,8 @@ class FeatureBuilder:
             "holder_count": first_int(overview, ["holder", "holders", "holder_count"]),
             "holder_change_24h": first_int(overview, ["holder_change_24h", "holderChange24h"]),
             "top10_holder_pct": first_float(security, ["top_10_holder_percent", "top10HolderPercent", "top10_holder_pct"]),
-            "is_mintable": 1 if bool(first_value(security, ["is_mintable", "mintable"], False)) else 0,
-            "freeze_authority": 1 if bool(first_value(security, ["freeze_authority", "freezeAuthority"], False)) else 0,
+            "is_mintable": flag_int(first_value(security, ["is_mintable", "mintable"], 0)),
+            "freeze_authority": flag_int(first_value(security, ["freeze_authority", "freezeAuthority"], 0)),
             "raw_overview": json.dumps(overview, default=str, separators=(",", ":")),
             "raw_security": json.dumps(security, default=str, separators=(",", ":")),
         }
@@ -1590,6 +1627,9 @@ class LiveScanner:
         errors: List[str] = []
         metadata = {
             "scan_chains": list(chains),
+            "trade_limit": int(trade_limit),
+            "top_trader_limit": int(top_trader_limit),
+            "smart_money_enabled": bool(trade_limit > 0 and top_trader_limit > 0),
             "binance_usdt_only": bool(self.binance_usdt_only),
             "binance_symbol_count": 0,
             "binance_min_liquidity_usd": self.binance_min_liquidity_usd,
@@ -1844,12 +1884,12 @@ def print_signal_table(signals: Sequence[Dict[str, Any]], limit: int = 25) -> No
     print("-" * 120)
     for signal in rows:
         reasons = ", ".join(signal.get("reasons", [])[:4])
-        print(
+        print(console_safe(
             f"{signal['chain'][:10]:10} {str(signal.get('symbol') or '?')[:12]:12} "
             f"{signal['label'][:20]:20} {signal['pump_score']:6.1f} {signal['dump_score']:6.1f} "
             f"{signal['anomaly_score']:6.1f} {signal['smart_money_score']:6.1f} {signal['risk_score']:6.1f}  "
             f"{reasons}"
-        )
+        ))
 
 
 def print_outcome_table(outcomes: Sequence[Dict[str, Any]], limit: int = 25) -> None:
@@ -1861,11 +1901,11 @@ def print_outcome_table(outcomes: Sequence[Dict[str, Any]], limit: int = 25) -> 
     print("-" * 92)
     for outcome in rows:
         reasons = ", ".join(outcome.get("reasons", [])[:4])
-        print(
+        print(console_safe(
             f"{outcome['chain'][:10]:10} {str(outcome.get('symbol') or '?')[:12]:12} "
             f"{outcome['label'][:20]:20} {outcome['predicted_direction']:>5} "
             f"{outcome['return_pct']:8.2f} {str(bool(outcome['is_true'])):>5}  {reasons}"
-        )
+        ))
 
 
 def write_reports(report_dir: Path, result: ScanResult, prefix: str = "quant_signals") -> Tuple[Path, Path]:
@@ -1987,8 +2027,12 @@ def write_qwen_brief(
     }
     prompt = {
         "task": "Write a concise quant analyst brief for these Azalyst Alpha Scanner token signals. "
-                "Do not give financial advice. Identify strongest watches, risks, "
-                "false-positive risk, and what needs confirmation next.",
+                "Do not give financial advice. Be conservative and score-calibrated. "
+                "Only call something a strong long if pump_score >= 70 and smart_money_score >= 45. "
+                "Only call something a strong short if dump_score >= 65. "
+                "Only call something an anomaly if anomaly_score >= 70. "
+                "If a name is below those thresholds, describe it as a low-conviction or tentative watch. "
+                "Identify the biggest risks, false-positive risk, and what needs confirmation next.",
         "top_signals": top_signals,
         "outcome_summary": outcome_summary,
     }

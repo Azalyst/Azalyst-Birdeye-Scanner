@@ -95,7 +95,7 @@ All three write to the same SQLite database (`data/birdeye_quant.db`) and report
 
 | Workflow | Schedule | Purpose |
 |---|---|---|
-| `quant_signal_engine.yml` | `*/15 * * * *` (every 15 min) | Multi-chain scan → emit signals → evaluate mature ones |
+| `quant_signal_engine.yml` | `*/15 * * * *` (every 15 min) | Rotating 3-chain scan with live trade/top-trader data; manual dispatch can run the full 9-chain universe |
 | `agent.yml` | `*/15 * * * *` | NIM Qwen ReAct agent runs `daily_scan` + writes markdown reports |
 | `ml_pipeline.yml` | `17 */2 * * *` + `13 3 * * *` | 2-hourly **refresh** (cluster→events→mine→score→export); daily **retrain** at 03:13 UTC |
 | Dashboard | static | GitHub Pages — redeploys on every commit to `main` |
@@ -162,6 +162,8 @@ For each snapshot, all `wallet_events` in the 30-minute lookback are serialized 
 
 PrefixSpan mines **frequent subsequences** (min support 5, length 2–4) across all tokens, then ranks them by **lift** against the `signal_outcomes.is_true` label. The top-40 patterns land in `pattern_library`; per-snapshot matches in `pattern_matches`.
 
+These mined patterns are exported for research and the dashboard, but they are **not** used as live classifier features. That keeps the validation path free of pattern-label leakage.
+
 Falls back to frequent-bigram counting if the `prefixspan` package isn't installed.
 
 ### Supervised Classifier
@@ -171,8 +173,8 @@ Falls back to frequent-bigram counting if the `prefixspan` package isn't install
 | **Primary model** | LightGBM (`n_estimators=300`, `lr=0.05`, `num_leaves=31`, `class_weight=balanced`) |
 | **Fallback** | sklearn `GradientBoostingClassifier` |
 | **Target** | `signal_outcomes.is_true` (binary, horizon = 60 min, target = 10% move) |
-| **Features** | Token metrics · heuristic scores · trade-aggs ratios · 10 cluster-action counts · binary pattern indicators |
-| **Train/val split** | 80/20 stratified, `random_state=42` |
+| **Features** | Token metrics · heuristic scores · trade-aggs ratios · 10 cluster-action counts |
+| **Train/val split** | Chronological holdout (last 20%, minimum 10 rows) |
 | **Min samples** | 50 labeled rows (refuses to train below — graceful cold-start) |
 | **Artifacts** | `ml/model.pkl`, `ml/metrics.json` |
 
@@ -192,7 +194,7 @@ The rule-based engine computes five scores per snapshot:
 | `smart_money_score` | 0–100 | Top-trader concentration + positive PnL + recency |
 | `risk_score` | 0–100 | Mintable authority · freeze authority · top-10 holder concentration · LP age |
 
-Labels: `pump_candidate`, `whale_accumulation`, `dump_risk`, `anomaly_watch`, `rug_risk`.
+Labels: `pump_candidate`, `whale_accumulation`, `dump_risk`, `anomaly_watch`, `avoid_high_risk`.
 
 ### Outcome Evaluation
 
