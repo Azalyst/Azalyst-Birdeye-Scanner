@@ -83,29 +83,10 @@ def chain_label(chain: str) -> str:
     return CHAIN_LABELS.get(key, key.upper())
 
 
-def score_bucket(signal: Dict[str, Any]) -> str:
-    label = str(signal.get("label") or "")
-    pump = float(signal.get("pump_score") or 0.0)
-    dump = float(signal.get("dump_score") or 0.0)
-    anomaly = float(signal.get("anomaly_score") or 0.0)
-    smart = float(signal.get("smart_money_score") or 0.0)
-    risk = float(signal.get("risk_score") or 0.0)
-    if label == "pump_candidate" or (pump >= 70 and smart >= 45 and risk < 60):
-        return "High-conviction long watch"
-    if label == "dump_risk" or dump >= 65:
-        return "Downside / dump-risk watch"
-    if label == "avoid_high_risk" or risk >= 65:
-        return "High-risk / avoid"
-    if label == "anomaly_watch" or anomaly >= 70:
-        return "Unusual flow / needs confirmation"
-    return "Low-conviction watch"
-
-
 def signal_block(signal: Dict[str, Any]) -> str:
     reasons = ", ".join((signal.get("reasons") or [])[:3]) or "no clear reason tags"
     return (
         f"**{signal.get('symbol') or '?'}** [{chain_label(signal.get('chain') or '')}] - {signal.get('label') or 'watch'}\n"
-        f"Plain-English: {score_bucket(signal)}.\n"
         f"Tech: pump {fmt_num(signal.get('pump_score'), 1)} | dump {fmt_num(signal.get('dump_score'), 1)} | "
         f"anomaly {fmt_num(signal.get('anomaly_score'), 1)} | smart {fmt_num(signal.get('smart_money_score'), 1)} | "
         f"risk {fmt_num(signal.get('risk_score'), 1)}\n"
