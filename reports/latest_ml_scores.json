@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-25T23:08:29.961305+00:00",
+  "generated_at": "2026-04-26T02:07:07.909249+00:00",
   "model_metrics": {
     "status": "ok",
     "model": "lightgbm",
@@ -115,9 +115,9 @@
     "anonymous": 71
   },
   "totals": {
-    "snapshots": 648,
+    "snapshots": 677,
     "wallet_events": 377,
-    "labeled_outcomes": 102
+    "labeled_outcomes": 109
   },
   "top_signals": [
     {
@@ -244,20 +244,6 @@
       "pump_score": 1.49,
       "dump_score": 6.25,
       "anomaly_score": 17.6,
-      "label": "watch"
-    },
-    {
-      "snapshot_id": 300,
-      "ts": "2026-04-25T00:00:20+00:00",
-      "chain": "ethereum",
-      "address": "0x8de39b057cc6522230ab19c0205080a8663331ef",
-      "symbol": "wojak",
-      "ml_prob": 0.0010567251607550517,
-      "ml_direction": "down",
-      "ml_edge": 0.9978865496784899,
-      "pump_score": 0.0,
-      "dump_score": 9.51,
-      "anomaly_score": 20.34,
       "label": "watch"
     },
     {
@@ -469,6 +455,20 @@
       "dump_score": 6.25,
       "anomaly_score": 39.76,
       "label": "watch"
+    },
+    {
+      "snapshot_id": 348,
+      "ts": "2026-04-25T06:45:11+00:00",
+      "chain": "ethereum",
+      "address": "0xaff2565091e7207191dbe340b8528d02fa78d044",
+      "symbol": "ASTEROID",
+      "ml_prob": 0.0010729026938836282,
+      "ml_direction": "down",
+      "ml_edge": 0.9978541946122328,
+      "pump_score": 14.44,
+      "dump_score": 6.25,
+      "anomaly_score": 73.66,
+      "label": "anomaly_watch"
     }
   ],
   "top_patterns": [
