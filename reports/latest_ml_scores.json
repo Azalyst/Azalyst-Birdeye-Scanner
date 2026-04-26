@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-26T17:48:14.874908+00:00",
+  "generated_at": "2026-04-26T18:12:48.537270+00:00",
   "model_metrics": {
     "status": "ok",
     "model": "lightgbm",
@@ -115,9 +115,9 @@
     "anonymous": 71
   },
   "totals": {
-    "snapshots": 743,
+    "snapshots": 773,
     "wallet_events": 377,
-    "labeled_outcomes": 124
+    "labeled_outcomes": 125
   },
   "top_signals": [
     {
@@ -177,6 +177,20 @@
       "label": "watch"
     },
     {
+      "snapshot_id": 751,
+      "ts": "2026-04-26T18:07:24+00:00",
+      "chain": "solana",
+      "address": "AmSYbLUcwYmBZc8G9GTenSn2dsLjsZiVeMxMQvcUpump",
+      "symbol": "LASTMAN",
+      "ml_prob": 0.0009099200944030699,
+      "ml_direction": "down",
+      "ml_edge": 0.9981801598111939,
+      "pump_score": 36.0,
+      "dump_score": 0.0,
+      "anomaly_score": 100.0,
+      "label": "anomaly_watch"
+    },
+    {
       "snapshot_id": 721,
       "ts": "2026-04-26T08:07:19+00:00",
       "chain": "ethereum",
@@ -202,6 +216,20 @@
       "pump_score": 3.9,
       "dump_score": 7.35,
       "anomaly_score": 12.93,
+      "label": "watch"
+    },
+    {
+      "snapshot_id": 773,
+      "ts": "2026-04-26T18:07:24+00:00",
+      "chain": "ethereum",
+      "address": "0x3103cd1602d5fa8f4b9283f9d5a7fa2290795d51",
+      "symbol": "PEPI",
+      "ml_prob": 0.0010002368449395123,
+      "ml_direction": "down",
+      "ml_edge": 0.997999526310121,
+      "pump_score": 1.59,
+      "dump_score": 5.48,
+      "anomaly_score": 11.31,
       "label": "watch"
     },
     {
@@ -440,34 +468,6 @@
       "pump_score": 12.26,
       "dump_score": 0.0,
       "anomaly_score": 14.44,
-      "label": "watch"
-    },
-    {
-      "snapshot_id": 637,
-      "ts": "2026-04-25T23:02:05+00:00",
-      "chain": "solana",
-      "address": "Fv7undxjB2sT3NQYqgguQ4zZLHM8aQ9uuNK5JA2ThPLT",
-      "symbol": "m\u0254",
-      "ml_prob": 0.001250008470566206,
-      "ml_direction": "down",
-      "ml_edge": 0.9974999830588676,
-      "pump_score": 30.0,
-      "dump_score": 0.0,
-      "anomaly_score": 30.0,
-      "label": "watch"
-    },
-    {
-      "snapshot_id": 689,
-      "ts": "2026-04-26T06:38:51+00:00",
-      "chain": "optimism",
-      "address": "0xedf38688b27036816a50185caa430d5479e1c63e",
-      "symbol": "OVER",
-      "ml_prob": 0.001257065471351606,
-      "ml_direction": "down",
-      "ml_edge": 0.9974858690572967,
-      "pump_score": 0.0,
-      "dump_score": 6.25,
-      "anomaly_score": 0.5,
       "label": "watch"
     }
   ],

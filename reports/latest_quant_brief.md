@@ -1,84 +1,98 @@
 # Quant Signal Brief
 
-Generated: 2026-04-26T16:24:19+00:00
+Generated: 2026-04-26T18:12:46+00:00
 
 ### Azalyst Alpha Scanner Token Signals Brief
 
 **Date:** 2026-04-26  
-**Chain:** Arbitrum
+**Chain:** Solana
 
 ---
 
-#### 1. **MNFLAB**
-- **Symbol:** MNFLAB
-- **Anomaly Score:** 73.76 (Anomaly)
-- **Pump Score:** 57.12
-- **Dump Score:** 24.5
-- **Smart Money Score:** 0.0
-- **Risk Score:** 0.0
-- **Reasons:** Liquidity drop
-- **Metrics:** Price = $0.002512, Liquidity = $25,600.94, Price Change (1h) = 63.84%, Volume (1h) = $2,832.86
-
-**Analysis:**  
-- **Classification:** Anomaly  
-- **Biggest Risks:** High price volatility and liquidity drop suggest potential instability.
-- **False-Positive Risk:** High, as the anomaly could be due to short-term market noise.
-- **Next Steps:** Monitor liquidity changes and price movements over the next 24-48 hours for confirmation.
-
----
-
-#### 2. **WBTC**
-- **Symbol:** WBTC
-- **Pump Score:** 53.35
-- **Dump Score:** 0.05
-- **Anomaly Score:** 38.13
-- **Smart Money Score:** 3.83
-- **Risk Score:** 0.0
-- **Reasons:** Whale accumulation
-- **Metrics:** Price = $77,801.64, Liquidity = $48,473,867.27, Price Change (1h) = -0.06%, Volume (1h) = $422,530.46
-
-**Analysis:**  
-- **Classification:** Low-conviction Watch  
-- **Biggest Risks:** Potential overvaluation if whale accumulation is not followed by broader market interest.
-- **False-Positive Risk:** Moderate, as whale activity can sometimes precede significant price movements.
-- **Next Steps:** Monitor whale activity and broader market sentiment towards WBTC.
-
----
-
-#### 3. **MEKA**
-- **Symbol:** MEKA
-- **Pump Score:** 28.51
+#### Token: LASTMAN
+- **Symbol:** LASTMAN
+- **Snapshot ID:** 751
+- **Anomaly Score:** 100.0
+- **Pump Score:** 36.0
 - **Dump Score:** 0.0
-- **Anomaly Score:** 52.48
 - **Smart Money Score:** 0.0
 - **Risk Score:** 0.0
-- **Reasons:** Normal watch
-- **Metrics:** Price = $0.08129, Liquidity = $313,241.89, Price Change (1h) = 13.94%, Volume (1h) = $13,307.73
 
-**Analysis:**  
-- **Classification:** Low-conviction Watch  
-- **Biggest Risks:** High price volatility and recent liquidity increase could indicate speculative buying.
-- **False-Positive Risk:** Moderate, as price movements could be short-term.
-- **Next Steps:** Monitor price and volume trends over the next few hours.
+**Classification:** Anomaly Watch
+
+**Metrics:**
+- Price: $0.1543
+- Liquidity (USD): $24,872,290.51
+- Price Change (1h): +4752.20%
+- Volume (1h USD): $0.0
+- Hourly Volume Ratio: 0.0
+- Buy Imbalance: 0.0
+- Whale Net (USD): $0.0
+- Liquidity Change (%): +42976.58%
+- Top Trader PnL (USD): $0.0
+
+**Reasons:**
+- Normal Watch
+- ML Isolation Forest Anomaly
+
+**Analysis:**
+- **Anomaly:** The token shows an extremely high anomaly score, indicating unusual activity that may not be fully understood or explained by typical market behavior.
+- **Pump:** Despite a high pump score, the smart money score is very low, suggesting that institutional or smart money is not involved in the pump.
+- **Liquidity:** The liquidity has increased significantly, which could be a sign of manipulation or a genuine surge in interest.
+- **Volume:** No volume in the last hour, which is unusual given the price movement.
+
+**Biggest Risks:**
+- **False-Positive Risk:** The high anomaly score may indicate a false positive, where the token's behavior is not indicative of a genuine opportunity.
+- **Market Manipulation:** The sudden price movement and liquidity increase could be a sign of market manipulation.
+
+**Next Steps:**
+- Confirm the source of the pump and liquidity increase.
+- Monitor for any news or events that might explain the sudden price movement.
+- Evaluate the token's fundamentals and project viability.
 
 ---
 
-#### 4. **aArbWETH**
-- **Symbol:** aArbWETH
-- **Pump Score:** 25.09
-- **Dump Score:** 0.06
-- **Anomaly Score:** 30.08
-- **Smart Money Score:** 0.0
+#### Token: HENRY
+- **Symbol:** HENRY
+- **Snapshot ID:** 744
+- **Anomaly Score:** 69.11
+- **Pump Score:** 35.76
+- **Dump Score:** 28.94
+- **Smart Money Score:** 3.29
 - **Risk Score:** 0.0
-- **Reasons:** Normal watch
-- **Metrics:** Price = $2,333.57, Liquidity = $2,344,938.52, Price Change (1h) = -0.07%, Volume (1h) = $70,401.60
 
-**Analysis:**  
-- **Classification:** Low-conviction Watch  
-- **Biggest Risks:** Recent price decline and high volume could indicate selling pressure.
-- **False-Positive Risk:** Moderate, as price movements could be short-term.
-- **Next Steps:** Monitor price and volume trends over the next few hours.
+**Classification:** Watch
+
+**Metrics:**
+- Price: $0.002089
+- Liquidity (USD): $156,655.73
+- Price Change (1h): -32.16%
+- Volume (1h USD): $304,709.41
+- Hourly Volume Ratio: 6.05
+- Buy Imbalance: 0.1645
+- Whale Net (USD): $0.0
+- Liquidity Change (%): 0.0%
+- Top Trader PnL (USD): $0.0
+
+**Reasons:**
+- Normal Watch
+
+**Analysis:**
+- **Anomaly:** The token shows a high anomaly score, indicating unusual activity.
+- **Pump/Dump:** The token has a high pump score but also a significant dump score, suggesting volatility.
+- **Smart Money:** There is a slight smart money involvement, but it is not substantial.
+- **Volume:** High volume relative to liquidity, indicating strong trading activity.
+
+**Biggest Risks:**
+- **False-Positive Risk:** The high anomaly score may indicate a false positive.
+- **Volatility:** The token is highly volatile, which can lead to significant losses.
+
+**Next Steps:**
+- Confirm the cause of the price movement.
+- Monitor for any news or events that might explain the price volatility.
+- Evaluate the token's fundamentals and project viability.
 
 ---
 
-#### 5
+#### Token: Trump (CvhtnWAE8j72e4TJ7h5uEq4MYJTimEKKdSvif9uq)
+- **
