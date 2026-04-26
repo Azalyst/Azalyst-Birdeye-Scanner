@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-26T19:19:42.356012+00:00",
+  "generated_at": "2026-04-26T19:39:27.239421+00:00",
   "model_metrics": {
     "status": "ok",
     "model": "lightgbm",
@@ -115,9 +115,9 @@
     "anonymous": 71
   },
   "totals": {
-    "snapshots": 780,
+    "snapshots": 787,
     "wallet_events": 377,
-    "labeled_outcomes": 125
+    "labeled_outcomes": 129
   },
   "top_signals": [
     {
@@ -146,6 +146,34 @@
       "pump_score": 11.38,
       "dump_score": 0.07,
       "anomaly_score": 12.98,
+      "label": "watch"
+    },
+    {
+      "snapshot_id": 782,
+      "ts": "2026-04-26T19:34:08+00:00",
+      "chain": "optimism",
+      "address": "0x4200000000000000000000000000000000000006",
+      "symbol": "WETH",
+      "ml_prob": 0.0007977200424904544,
+      "ml_direction": "down",
+      "ml_edge": 0.9984045599150191,
+      "pump_score": 22.36,
+      "dump_score": 0.0,
+      "anomaly_score": 25.33,
+      "label": "watch"
+    },
+    {
+      "snapshot_id": 784,
+      "ts": "2026-04-26T19:34:08+00:00",
+      "chain": "optimism",
+      "address": "0x0b2c639c533813f4aa9d7837caf62653d097ff85",
+      "symbol": "USDC",
+      "ml_prob": 0.0007977200424904544,
+      "ml_direction": "down",
+      "ml_edge": 0.9984045599150191,
+      "pump_score": 22.53,
+      "dump_score": 0.61,
+      "anomaly_score": 26.01,
       "label": "watch"
     },
     {
@@ -244,6 +272,20 @@
       "pump_score": 1.59,
       "dump_score": 5.48,
       "anomaly_score": 11.31,
+      "label": "watch"
+    },
+    {
+      "snapshot_id": 785,
+      "ts": "2026-04-26T19:34:08+00:00",
+      "chain": "optimism",
+      "address": "0xedf38688b27036816a50185caa430d5479e1c63e",
+      "symbol": "OVER",
+      "ml_prob": 0.0010038943923272772,
+      "ml_direction": "down",
+      "ml_edge": 0.9979922112153454,
+      "pump_score": 1.87,
+      "dump_score": 6.25,
+      "anomaly_score": 12.04,
       "label": "watch"
     },
     {
@@ -359,6 +401,20 @@
       "label": "watch"
     },
     {
+      "snapshot_id": 783,
+      "ts": "2026-04-26T19:34:08+00:00",
+      "chain": "optimism",
+      "address": "0x9560e827af36c94d2ac33a39bce1fe78631088db",
+      "symbol": "VELO",
+      "ml_prob": 0.0012187255263760685,
+      "ml_direction": "down",
+      "ml_edge": 0.9975625489472478,
+      "pump_score": 0.0,
+      "dump_score": 6.25,
+      "anomaly_score": 0.29,
+      "label": "watch"
+    },
+    {
       "snapshot_id": 775,
       "ts": "2026-04-26T18:40:32+00:00",
       "chain": "optimism",
@@ -412,62 +468,6 @@
       "pump_score": 0.0,
       "dump_score": 1.12,
       "anomaly_score": 1.36,
-      "label": "watch"
-    },
-    {
-      "snapshot_id": 681,
-      "ts": "2026-04-26T04:43:03+00:00",
-      "chain": "optimism",
-      "address": "0x9560e827af36c94d2ac33a39bce1fe78631088db",
-      "symbol": "VELO",
-      "ml_prob": 0.0012187255263760685,
-      "ml_direction": "down",
-      "ml_edge": 0.9975625489472478,
-      "pump_score": 0.0,
-      "dump_score": 6.48,
-      "anomaly_score": 0.32,
-      "label": "watch"
-    },
-    {
-      "snapshot_id": 614,
-      "ts": "2026-04-25T22:36:10+00:00",
-      "chain": "optimism",
-      "address": "0x9560e827af36c94d2ac33a39bce1fe78631088db",
-      "symbol": "VELO",
-      "ml_prob": 0.0012187255263760685,
-      "ml_direction": "down",
-      "ml_edge": 0.9975625489472478,
-      "pump_score": 0.0,
-      "dump_score": 6.55,
-      "anomaly_score": 0.69,
-      "label": "watch"
-    },
-    {
-      "snapshot_id": 687,
-      "ts": "2026-04-26T06:38:51+00:00",
-      "chain": "optimism",
-      "address": "0x1e925de1c68ef83bd98ee3e130ef14a50309c01b",
-      "symbol": "EXA",
-      "ml_prob": 0.0012245355614664188,
-      "ml_direction": "down",
-      "ml_edge": 0.9975509288770672,
-      "pump_score": 0.0,
-      "dump_score": 0.0,
-      "anomaly_score": 0.0,
-      "label": "watch"
-    },
-    {
-      "snapshot_id": 736,
-      "ts": "2026-04-26T16:19:22+00:00",
-      "chain": "arbitrum",
-      "address": "0x82af49447d8a07e3bd95bd0d56f35241523fbab1",
-      "symbol": "WETH",
-      "ml_prob": 0.0012350166611735096,
-      "ml_direction": "down",
-      "ml_edge": 0.997529966677653,
-      "pump_score": 11.29,
-      "dump_score": 0.05,
-      "anomaly_score": 13.07,
       "label": "watch"
     }
   ],
