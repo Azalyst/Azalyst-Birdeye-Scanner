@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-27T15:17:20.190726+00:00",
+  "generated_at": "2026-04-27T17:09:41.793477+00:00",
   "model_metrics": {
     "status": "ok",
     "model": "lightgbm",
@@ -115,9 +115,9 @@
     "anonymous": 71
   },
   "totals": {
-    "snapshots": 963,
+    "snapshots": 993,
     "wallet_events": 377,
-    "labeled_outcomes": 153
+    "labeled_outcomes": 156
   },
   "top_signals": [
     {
@@ -174,6 +174,20 @@
       "pump_score": 30.05,
       "dump_score": 0.0,
       "anomaly_score": 30.08,
+      "label": "watch"
+    },
+    {
+      "snapshot_id": 981,
+      "ts": "2026-04-27T17:04:38+00:00",
+      "chain": "solana",
+      "address": "6bWdqQoqVT6EbYzrqHBmCTmD7xzahtk1wYArqJVrpump",
+      "symbol": "alt-coin",
+      "ml_prob": 0.0006463757093499098,
+      "ml_direction": "down",
+      "ml_edge": 0.9987072485813002,
+      "pump_score": 30.0,
+      "dump_score": 4.58,
+      "anomaly_score": 37.13,
       "label": "watch"
     },
     {
@@ -300,6 +314,20 @@
       "pump_score": 30.0,
       "dump_score": 36.0,
       "anomaly_score": 65.0,
+      "label": "watch"
+    },
+    {
+      "snapshot_id": 976,
+      "ts": "2026-04-27T17:04:38+00:00",
+      "chain": "solana",
+      "address": "35bQxo1JXtR4snyjXhiSxWjxiGBDEFvkxUqK6eYvWzMZ",
+      "symbol": "SCAM",
+      "ml_prob": 0.0009420035687094006,
+      "ml_direction": "down",
+      "ml_edge": 0.9981159928625812,
+      "pump_score": 30.0,
+      "dump_score": 10.52,
+      "anomaly_score": 46.37,
       "label": "watch"
     },
     {
@@ -441,34 +469,6 @@
       "dump_score": 0.0,
       "anomaly_score": 100.0,
       "label": "anomaly_watch"
-    },
-    {
-      "snapshot_id": 962,
-      "ts": "2026-04-27T15:08:02+00:00",
-      "chain": "solana",
-      "address": "3bPGpCd3NPLszASvDuf1TsTn8s4ihn2aqnUQPsDCpump",
-      "symbol": "JEWS",
-      "ml_prob": 0.0012772493134441953,
-      "ml_direction": "down",
-      "ml_edge": 0.9974455013731116,
-      "pump_score": 30.0,
-      "dump_score": 23.88,
-      "anomaly_score": 65.0,
-      "label": "watch"
-    },
-    {
-      "snapshot_id": 798,
-      "ts": "2026-04-26T20:08:19+00:00",
-      "chain": "solana",
-      "address": "D2cPCE1tiQoQXDW81CkJDcdUMsHtyZFo3xpAUTGKZzvW",
-      "symbol": "chumps",
-      "ml_prob": 0.0012772493134441953,
-      "ml_direction": "down",
-      "ml_edge": 0.9974455013731116,
-      "pump_score": 30.0,
-      "dump_score": 22.77,
-      "anomaly_score": 65.0,
-      "label": "watch"
     }
   ],
   "top_patterns": [
