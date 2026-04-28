@@ -1,82 +1,65 @@
 # Quant Signal Brief
 
-Generated: 2026-04-28T09:40:45+00:00
+Generated: 2026-04-28T11:27:02+00:00
 
 ### Azalyst Alpha Scanner Token Signals Brief
 
 **Date:** 2026-04-28  
-**Time:** 09:39:54 UTC
+**Chain:** Arbitrum, BNB
 
 ---
 
-#### Token Signals Overview
+#### **PEAK (0x062e11295c3c301b289eb54cb5109daf7bfc9f50)**
+- **Anomaly Watch**
+- **Anomaly Score:** 100.0
+- **Pump Score:** 66.0
+- **Dump Score:** 0.0
+- **Smart Money Score:** 0.0
+- **Risk Score:** 0.0
+- **Metrics:** Price $0.0111, Liquidity $115,574.32, 1H Price Change 190%
+- **Reasons:** Sudden rise in price and volume, ML isolation forest anomaly
+- **Biggest Risks:** False-positive risk due to sudden price movement, lack of smart money involvement
+- **Next Steps:** Confirm if the price movement is justified by underlying fundamentals or if it's a speculative bubble
 
-- **Total Tokens Evaluated:** 10
-- **Hit Count:** 0
-- **Hit Rate:** 0.0%
+#### **KIMA (0x94fcd9c18f99538c0f7c61c5500ca79f0d5c4dab)**
+- **Anomaly Watch**
+- **Anomaly Score:** 95.15
+- **Pump Score:** 0.0
+- **Dump Score:** 6.12
+- **Smart Money Score:** 0.0
+- **Risk Score:** 12.0
+- **Metrics:** Price $0.004241, Liquidity $255.02, 1H Price Change -2.14%
+- **Reasons:** Risk of thin liquidity, ML isolation forest anomaly
+- **Biggest Risks:** High risk due to thin liquidity, potential for price manipulation
+- **Next Steps:** Monitor liquidity changes and trading volume for signs of stabilization or further manipulation
 
----
+#### **WBTC (0x2f2a2543b76a4166549f7aab2e75bef0aefc5b0f)**
+- **Dump Risk**
+- **Anomaly Score:** 67.07
+- **Pump Score:** 8.12
+- **Dump Score:** 68.16
+- **Smart Money Score:** 0.0
+- **Risk Score:** 0.0
+- **Metrics:** Price $76,218.66, Liquidity $46,611,851.85, 1H Price Change -0.15%
+- **Reasons:** Whale distribution
+- **Biggest Risks:** Potential for further price decline due to whale selling
+- **Next Steps:** Confirm if the whale activity is part of a larger trend or a one-off event
 
-#### Detailed Analysis
+#### **thUSD (0x9aa9aa0530a6af70ee7bc47cf1240100f514b065)**
+- **Watch**
+- **Anomaly Score:** 66.07
+- **Pump Score:** 22.68
+- **Dump Score:** 0.11
+- **Smart Money Score:** 0.0
+- **Risk Score:** 0.0
+- **Metrics:** Price $0.9977, Liquidity $41,132.31, 1H Price Change -0.12%
+- **Reasons:** Normal watch
+- **Biggest Risks:** Low liquidity, potential for volatility
+- **Next Steps:** Monitor liquidity changes and price stability
 
-1. **OP (Optimism)**
-   - **Pump Score:** 0.0
-   - **Dump Score:** 32.03
-   - **Anomaly Score:** 27.25
-   - **Smart Money Score:** 0.0
-   - **Risk Score:** 25.0
-   - **Label:** Watch
-   - **Reasons:** Risk: Mintable
-   - **Metrics:** Price: $0.1212, Liquidity: $519,931.51, 1H Price Change: -0.67%
-   - **Biggest Risks:** Mintable token, potential for inflation.
-   - **False-Positive Risk:** High due to minting risk.
-   - **Next Confirmation:** Monitor for any smart money inflows or outflows.
-
-2. **ZKX (zkSync)**
-   - **Pump Score:** 31.19
-   - **Dump Score:** 0.0
-   - **Anomaly Score:** 31.85
-   - **Smart Money Score:** 0.0
-   - **Risk Score:** 0.0
-   - **Label:** Watch
-   - **Reasons:** Normal Watch
-   - **Metrics:** Price: $0.01203, Liquidity: $900,113.61, 1H Price Change: 1.32%
-   - **Biggest Risks:** None identified.
-   - **False-Positive Risk:** Moderate.
-   - **Next Confirmation:** Monitor for smart money inflows and volume stability.
-
-3. **ZF (zkSync)**
-   - **Pump Score:** 21.51
-   - **Dump Score:** 6.25
-   - **Anomaly Score:** 30.41
-   - **Smart Money Score:** 0.0
-   - **Risk Score:** 25.0
-   - **Label:** Watch
-   - **Reasons:** Risk: Mintable
-   - **Metrics:** Price: $0.0006053, Liquidity: $133,808.48, 1H Price Change: 0.29%
-   - **Biggest Risks:** Mintable token, potential for inflation.
-   - **False-Positive Risk:** High due to minting risk.
-   - **Next Confirmation:** Monitor for smart money inflows or outflows.
-
-4. **USDC (Optimism)**
-   - **Pump Score:** 0.0
-   - **Dump Score:** 25.11
-   - **Anomaly Score:** 21.21
-   - **Smart Money Score:** 0.0
-   - **Risk Score:** 0.0
-   - **Label:** Watch
-   - **Reasons:** Normal Watch
-   - **Metrics:** Price: $1.00062, Liquidity: $3,914,199.30, 1H Price Change: -0.12%
-   - **Biggest Risks:** None identified.
-   - **False-Positive Risk:** Low.
-   - **Next Confirmation:** Monitor for any unusual price movements or liquidity changes.
-
-5. **WETH (zkSync)**
-   - **Pump Score:** 17.97
-   - **Dump Score:** 0.0
-   - **Anomaly Score:** 20.31
-   - **Smart Money Score:** 0.0
-   - **Risk Score:** 0.0
-   - **Label:** Watch
-   - **Reasons:** Normal Watch
-   - **Metrics:** Price: $2290.27, Liquidity: $4,353,644
+#### **USDC (0xaf88d065e77c8cc2239327c5edb3a432268e5831)**
+- **Watch**
+- **Anomaly Score:** 50.25
+- **Pump Score:** 5.49
+- **Dump Score:** 25.0
+- **Smart
