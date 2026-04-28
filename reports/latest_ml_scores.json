@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-28T21:20:33.576022+00:00",
+  "generated_at": "2026-04-28T21:35:33.978651+00:00",
   "model_metrics": {
     "status": "ok",
     "model": "lightgbm",
@@ -115,9 +115,9 @@
     "anonymous": 71
   },
   "totals": {
-    "snapshots": 1292,
+    "snapshots": 1304,
     "wallet_events": 377,
-    "labeled_outcomes": 202
+    "labeled_outcomes": 205
   },
   "top_signals": [
     {
@@ -331,6 +331,20 @@
       "label": "watch"
     },
     {
+      "snapshot_id": 1298,
+      "ts": "2026-04-28T21:34:39+00:00",
+      "chain": "optimism",
+      "address": "0x4200000000000000000000000000000000000042",
+      "symbol": "OP",
+      "ml_prob": 0.0014308752292412589,
+      "ml_direction": "down",
+      "ml_edge": 0.9971382495415175,
+      "pump_score": 0.0,
+      "dump_score": 6.28,
+      "anomaly_score": 8.87,
+      "label": "watch"
+    },
+    {
       "snapshot_id": 1201,
       "ts": "2026-04-28T13:08:36+00:00",
       "chain": "solana",
@@ -454,20 +468,6 @@
       "pump_score": 30.0,
       "dump_score": 20.87,
       "anomaly_score": 62.47,
-      "label": "watch"
-    },
-    {
-      "snapshot_id": 1214,
-      "ts": "2026-04-28T13:08:36+00:00",
-      "chain": "ethereum",
-      "address": "0x6093f9ea65e70f9d4920b9198c33a7a354cfc103",
-      "symbol": "CLAW",
-      "ml_prob": 0.0018142142377148695,
-      "ml_direction": "down",
-      "ml_edge": 0.9963715715245702,
-      "pump_score": 30.0,
-      "dump_score": 25.36,
-      "anomaly_score": 65.0,
       "label": "watch"
     }
   ],
