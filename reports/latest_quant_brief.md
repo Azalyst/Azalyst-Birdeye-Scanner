@@ -1,44 +1,100 @@
 # Quant Signal Brief
 
-Generated: 2026-04-28T15:35:51+00:00
+Generated: 2026-04-28T17:19:21+00:00
 
-### Quant Analyst Brief: Azalyst Alpha Scanner Token Signals
+### Azalyst Alpha Scanner Token Signals Brief
 
-#### Overview
-This brief evaluates the top token signals from the Azalyst Alpha Scanner as of 2026-04-28T15:35:07+00:00 on the Optimism chain. The signals are analyzed based on pump_score, dump_score, anomaly_score, and smart_money_score, with specific thresholds for strong long, strong short, and anomaly classifications. 
+#### USDC (Snapshot ID: 1223)
+- **Chain:** Arbitrum
+- **Pump Score:** 77.44
+- **Dump Score:** 0.07
+- **Anomaly Score:** 48.9
+- **Smart Money Score:** 15.0
+- **Risk Score:** 0.0
+- **Label:** Whale Accumulation
+- **Reasons:** Whale Accumulation, Buy Pressure
 
-#### Signal Analysis
+**Analysis:**
+- **Pump Score:** High, indicating strong buying pressure.
+- **Dump Score:** Very low, no significant selling pressure.
+- **Anomaly Score:** Moderate, not a strong anomaly.
+- **Smart Money Score:** Low, no significant smart money involvement.
+- **Risk Score:** No risk flagged.
 
-1. **MESSA (0x6b0dcd77199786ffbf3dd6f4a2540cd666ce13ff)**
-   - **Classification:** Low-conviction watch
-   - **Scores:** pump_score = 33.65, dump_score = 0.0, anomaly_score = 35.68, smart_money_score = 0.0
-   - **Metrics:** Price = $0.000092, Liquidity = $17,145.14, Price Change 1h = 4.06%
-   - **Risks:** None identified
-   - **False-positive Risk:** High due to low pump_score and smart_money_score
-   - **Next Steps:** Monitor for any increase in pump_score or smart_money_score
+**Conclusion:**
+- **Classification:** Low-conviction Long
+- **Biggest Risks:** Lack of smart money involvement and moderate anomaly score.
+- **False-Positive Risk:** Moderate due to low smart money score.
+- **Next Steps:** Monitor smart money activity and further price movements.
 
-2. **WLD (0xdc6ff44d5d932cbd77b52e5612ba0529dc6226f1)**
-   - **Classification:** Low-conviction watch
-   - **Scores:** pump_score = 0.0, dump_score = 12.5, anomaly_score = 13.29, smart_money_score = 0.0
-   - **Metrics:** Price = $0.2511, Liquidity = $42,693.89, Price Change 1h = 0.28%
-   - **Risks:** Mintable, Freeze Authority
-   - **False-positive Risk:** Moderate due to low pump_score and smart_money_score
-   - **Next Steps:** Monitor for any increase in pump_score or smart_money_score; assess risks
+#### PEAK (Snapshot ID: 1235)
+- **Chain:** Arbitrum
+- **Pump Score:** 66.0
+- **Dump Score:** 11.81
+- **Anomaly Score:** 76.81
+- **Smart Money Score:** 0.0
+- **Risk Score:** 0.0
+- **Label:** Anomaly Watch
+- **Reasons:** Sudden Rise in Price Plus Volume
 
-3. **wstETH (0x1f32b1c2345538c0c6f582fcb022739c4a194ebb)**
-   - **Classification:** Low-conviction watch
-   - **Scores:** pump_score = 9.18, dump_score = 0.0, anomaly_score = 11.85, smart_money_score = 1.67
-   - **Metrics:** Price = $2,792.37, Liquidity = $682,433.32, Price Change 1h = 0.38%
-   - **Risks:** None identified
-   - **False-positive Risk:** Moderate due to low pump_score and smart_money_score
-   - **Next Steps:** Monitor for any increase in pump_score or smart_money_score
+**Analysis:**
+- **Pump Score:** High, indicating strong buying pressure.
+- **Dump Score:** Moderate, some selling pressure.
+- **Anomaly Score:** Very high, indicating unusual activity.
+- **Smart Money Score:** Low, no significant smart money involvement.
+- **Risk Score:** No risk flagged.
 
-4. **OP (0x4200000000000000000000000000000000000042)**
-   - **Classification:** Low-conviction watch
-   - **Scores:** pump_score = 1.23, dump_score = 6.44, anomaly_score = 11.73, smart_money_score = 0.0
-   - **Metrics:** Price = $0.1211, Liquidity = $518,498.48, Price Change 1h = 0.78%
-   - **Risks:** Mintable
-   - **False-positive Risk:** Moderate due to low pump_score and smart_money_score
-   - **Next Steps:** Monitor for any increase in pump_score or smart_money_score; assess risks
+**Conclusion:**
+- **Classification:** Anomaly
+- **Biggest Risks:** Lack of smart money involvement.
+- **False-Positive Risk:** High due to lack of smart money involvement.
+- **Next Steps:** Monitor smart money activity and further price movements.
 
-5. **WETH (0x420000000000000000000000000000000000
+#### thUSD (Snapshot ID: 1230)
+- **Chain:** Arbitrum
+- **Pump Score:** 0.0
+- **Dump Score:** 41.05
+- **Anomaly Score:** 26.84
+- **Smart Money Score:** 0.0
+- **Risk Score:** 0.0
+- **Label:** Watch
+- **Reasons:** Liquidity Drop
+
+**Analysis:**
+- **Pump Score:** Very low, no significant buying pressure.
+- **Dump Score:** High, indicating strong selling pressure.
+- **Anomaly Score:** Moderate, not a strong anomaly.
+- **Smart Money Score:** Low, no significant smart money involvement.
+- **Risk Score:** No risk flagged.
+
+**Conclusion:**
+- **Classification:** Low-conviction Short
+- **Biggest Risks:** Lack of smart money involvement.
+- **False-Positive Risk:** Moderate due to low smart money score.
+- **Next Steps:** Monitor smart money activity and further price movements.
+
+#### SCHRODI (Snapshot ID: 1229)
+- **Chain:** Arbitrum
+- **Pump Score:** 35.32
+- **Dump Score:** 6.38
+- **Anomaly Score:** 40.24
+- **Smart Money Score:** 3.04
+- **Risk Score:** 25.0
+- **Label:** Watch
+- **Reasons:** Buy Pressure, Risk: Freeze Authority
+
+**Analysis:**
+- **Pump Score:** Moderate, indicating some buying pressure.
+- **Dump Score:** Low, no significant selling pressure.
+- **Anomaly Score:** Moderate, not a strong anomaly.
+- **Smart Money Score:** Very low, no significant smart money involvement.
+- **Risk Score:** High, freeze authority risk.
+
+**Conclusion:**
+- **Classification:** Low-conviction Long
+- **Biggest Risks:** Freeze authority risk.
+- **False-Positive Risk:** High due to low smart money score.
+- **Next Steps:** Monitor smart money activity and further price movements.
+
+#### WBTC (Snapshot ID: 1225)
+

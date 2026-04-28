@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-28T15:35:53.680193+00:00",
+  "generated_at": "2026-04-28T17:19:24.155908+00:00",
   "model_metrics": {
     "status": "ok",
     "model": "lightgbm",
@@ -115,7 +115,7 @@
     "anonymous": 71
   },
   "totals": {
-    "snapshots": 1222,
+    "snapshots": 1239,
     "wallet_events": 377,
     "labeled_outcomes": 192
   },
@@ -219,20 +219,6 @@
       "label": "watch"
     },
     {
-      "snapshot_id": 975,
-      "ts": "2026-04-27T17:04:38+00:00",
-      "chain": "solana",
-      "address": "J2A6DrNKP8VwAHpELMmpsLcf4x6bRcKh4ebYPawzGMqK",
-      "symbol": "PRESS",
-      "ml_prob": 0.001111388068202978,
-      "ml_direction": "down",
-      "ml_edge": 0.997777223863594,
-      "pump_score": 30.6,
-      "dump_score": 9.99,
-      "anomaly_score": 45.97,
-      "label": "watch"
-    },
-    {
       "snapshot_id": 1052,
       "ts": "2026-04-27T21:55:04+00:00",
       "chain": "solana",
@@ -252,20 +238,6 @@
       "chain": "solana",
       "address": "4rf7iKpfW7zW1oQExdGd5MbgMwjE9WKkNGwApoZbpump",
       "symbol": "Spermrace",
-      "ml_prob": 0.001261909543814197,
-      "ml_direction": "down",
-      "ml_edge": 0.9974761809123716,
-      "pump_score": 30.0,
-      "dump_score": 4.58,
-      "anomaly_score": 37.13,
-      "label": "watch"
-    },
-    {
-      "snapshot_id": 981,
-      "ts": "2026-04-27T17:04:38+00:00",
-      "chain": "solana",
-      "address": "6bWdqQoqVT6EbYzrqHBmCTmD7xzahtk1wYArqJVrpump",
-      "symbol": "alt-coin",
       "ml_prob": 0.001261909543814197,
       "ml_direction": "down",
       "ml_edge": 0.9974761809123716,
@@ -468,6 +440,34 @@
       "pump_score": 14.52,
       "dump_score": 1.19,
       "anomaly_score": 32.25,
+      "label": "watch"
+    },
+    {
+      "snapshot_id": 1170,
+      "ts": "2026-04-28T11:25:47+00:00",
+      "chain": "arbitrum",
+      "address": "0x82af49447d8a07e3bd95bd0d56f35241523fbab1",
+      "symbol": "WETH",
+      "ml_prob": 0.0018439884772691634,
+      "ml_direction": "down",
+      "ml_edge": 0.9963120230454616,
+      "pump_score": 5.32,
+      "dump_score": 0.39,
+      "anomaly_score": 6.47,
+      "label": "watch"
+    },
+    {
+      "snapshot_id": 1139,
+      "ts": "2026-04-28T07:26:36+00:00",
+      "chain": "arbitrum",
+      "address": "0x82af49447d8a07e3bd95bd0d56f35241523fbab1",
+      "symbol": "WETH",
+      "ml_prob": 0.0018439884772691634,
+      "ml_direction": "down",
+      "ml_edge": 0.9963120230454616,
+      "pump_score": 9.23,
+      "dump_score": 2.01,
+      "anomaly_score": 12.57,
       "label": "watch"
     }
   ],
