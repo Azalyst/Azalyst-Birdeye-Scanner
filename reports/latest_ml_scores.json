@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-29T16:53:42.817096+00:00",
+  "generated_at": "2026-04-29T17:51:32.414329+00:00",
   "model_metrics": {
     "status": "ok",
     "model": "lightgbm",
@@ -473,7 +473,7 @@
   ],
   "top_patterns": [
     {
-      "pattern_id": 1353,
+      "pattern_id": 1381,
       "length": 4,
       "support": 15,
       "lift": 1.2,
@@ -487,7 +487,7 @@
       ]
     },
     {
-      "pattern_id": 1354,
+      "pattern_id": 1382,
       "length": 4,
       "support": 13,
       "lift": 1.2,
@@ -501,7 +501,7 @@
       ]
     },
     {
-      "pattern_id": 1355,
+      "pattern_id": 1383,
       "length": 3,
       "support": 13,
       "lift": 1.2,
@@ -514,7 +514,7 @@
       ]
     },
     {
-      "pattern_id": 1356,
+      "pattern_id": 1384,
       "length": 2,
       "support": 13,
       "lift": 1.2,
@@ -526,7 +526,7 @@
       ]
     },
     {
-      "pattern_id": 1357,
+      "pattern_id": 1385,
       "length": 4,
       "support": 12,
       "lift": 1.2,
@@ -540,7 +540,7 @@
       ]
     },
     {
-      "pattern_id": 1358,
+      "pattern_id": 1386,
       "length": 4,
       "support": 12,
       "lift": 1.2,
@@ -554,7 +554,7 @@
       ]
     },
     {
-      "pattern_id": 1359,
+      "pattern_id": 1387,
       "length": 4,
       "support": 12,
       "lift": 1.2,
@@ -568,7 +568,7 @@
       ]
     },
     {
-      "pattern_id": 1360,
+      "pattern_id": 1388,
       "length": 4,
       "support": 12,
       "lift": 1.2,
@@ -582,7 +582,7 @@
       ]
     },
     {
-      "pattern_id": 1361,
+      "pattern_id": 1389,
       "length": 3,
       "support": 12,
       "lift": 1.2,
@@ -595,7 +595,7 @@
       ]
     },
     {
-      "pattern_id": 1362,
+      "pattern_id": 1390,
       "length": 4,
       "support": 12,
       "lift": 1.2,
@@ -609,7 +609,7 @@
       ]
     },
     {
-      "pattern_id": 1363,
+      "pattern_id": 1391,
       "length": 3,
       "support": 12,
       "lift": 1.2,
@@ -622,7 +622,7 @@
       ]
     },
     {
-      "pattern_id": 1364,
+      "pattern_id": 1392,
       "length": 4,
       "support": 12,
       "lift": 1.2,
@@ -636,7 +636,7 @@
       ]
     },
     {
-      "pattern_id": 1365,
+      "pattern_id": 1393,
       "length": 3,
       "support": 12,
       "lift": 1.2,
@@ -649,7 +649,7 @@
       ]
     },
     {
-      "pattern_id": 1366,
+      "pattern_id": 1394,
       "length": 3,
       "support": 12,
       "lift": 1.2,
@@ -662,7 +662,7 @@
       ]
     },
     {
-      "pattern_id": 1367,
+      "pattern_id": 1395,
       "length": 4,
       "support": 12,
       "lift": 1.2,
