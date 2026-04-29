@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-29T21:27:50.119860+00:00",
+  "generated_at": "2026-04-29T21:52:18.643030+00:00",
   "model_metrics": {
     "status": "ok",
     "model": "lightgbm",
@@ -115,9 +115,9 @@
     "anonymous": 71
   },
   "totals": {
-    "snapshots": 1535,
+    "snapshots": 1555,
     "wallet_events": 377,
-    "labeled_outcomes": 240
+    "labeled_outcomes": 243
   },
   "top_signals": [
     {
@@ -331,34 +331,6 @@
       "label": "watch"
     },
     {
-      "snapshot_id": 1295,
-      "ts": "2026-04-28T21:34:39+00:00",
-      "chain": "optimism",
-      "address": "0x4200000000000000000000000000000000000006",
-      "symbol": "WETH",
-      "ml_prob": 0.0012759970025444764,
-      "ml_direction": "down",
-      "ml_edge": 0.997448005994911,
-      "pump_score": 6.08,
-      "dump_score": 0.16,
-      "anomaly_score": 7.76,
-      "label": "watch"
-    },
-    {
-      "snapshot_id": 1297,
-      "ts": "2026-04-28T21:34:39+00:00",
-      "chain": "optimism",
-      "address": "0x0b2c639c533813f4aa9d7837caf62653d097ff85",
-      "symbol": "USDC",
-      "ml_prob": 0.0012759970025444764,
-      "ml_direction": "down",
-      "ml_edge": 0.997448005994911,
-      "pump_score": 6.49,
-      "dump_score": 0.35,
-      "anomaly_score": 8.03,
-      "label": "watch"
-    },
-    {
       "snapshot_id": 1314,
       "ts": "2026-04-28T23:35:02+00:00",
       "chain": "optimism",
@@ -468,6 +440,34 @@
       "pump_score": 0.0,
       "dump_score": 6.25,
       "anomaly_score": 6.69,
+      "label": "watch"
+    },
+    {
+      "snapshot_id": 1306,
+      "ts": "2026-04-28T22:37:30+00:00",
+      "chain": "optimism",
+      "address": "0x1f32b1c2345538c0c6f582fcb022739c4a194ebb",
+      "symbol": "wstETH",
+      "ml_prob": 0.001482121108649609,
+      "ml_direction": "down",
+      "ml_edge": 0.9970357577827008,
+      "pump_score": 2.42,
+      "dump_score": 0.0,
+      "anomaly_score": 2.74,
+      "label": "watch"
+    },
+    {
+      "snapshot_id": 1399,
+      "ts": "2026-04-29T09:22:38+00:00",
+      "chain": "avalanche",
+      "address": "0xb31f66aa3c1e785363f0875a1b74e27b85fd66c7",
+      "symbol": "WAVAX",
+      "ml_prob": 0.0015105619921206423,
+      "ml_direction": "down",
+      "ml_edge": 0.9969788760157587,
+      "pump_score": 6.66,
+      "dump_score": 0.0,
+      "anomaly_score": 7.98,
       "label": "watch"
     }
   ],
