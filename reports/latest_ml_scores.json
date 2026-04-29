@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-29T15:09:36.938426+00:00",
+  "generated_at": "2026-04-29T16:53:42.817096+00:00",
   "model_metrics": {
     "status": "ok",
     "model": "lightgbm",
@@ -115,9 +115,9 @@
     "anonymous": 71
   },
   "totals": {
-    "snapshots": 1481,
+    "snapshots": 1501,
     "wallet_events": 377,
-    "labeled_outcomes": 229
+    "labeled_outcomes": 236
   },
   "top_signals": [
     {
@@ -401,20 +401,6 @@
       "label": "watch"
     },
     {
-      "snapshot_id": 1219,
-      "ts": "2026-04-28T15:35:07+00:00",
-      "chain": "optimism",
-      "address": "0x4200000000000000000000000000000000000006",
-      "symbol": "WETH",
-      "ml_prob": 0.0012759970025444764,
-      "ml_direction": "down",
-      "ml_edge": 0.997448005994911,
-      "pump_score": 9.27,
-      "dump_score": 0.0,
-      "anomaly_score": 10.46,
-      "label": "watch"
-    },
-    {
       "snapshot_id": 1314,
       "ts": "2026-04-28T23:35:02+00:00",
       "chain": "optimism",
@@ -468,6 +454,20 @@
       "pump_score": 7.65,
       "dump_score": 0.68,
       "anomaly_score": 9.43,
+      "label": "watch"
+    },
+    {
+      "snapshot_id": 1282,
+      "ts": "2026-04-28T20:16:47+00:00",
+      "chain": "arbitrum",
+      "address": "0x82af49447d8a07e3bd95bd0d56f35241523fbab1",
+      "symbol": "WETH",
+      "ml_prob": 0.0013269876309611472,
+      "ml_direction": "down",
+      "ml_edge": 0.9973460247380777,
+      "pump_score": 16.11,
+      "dump_score": 0.0,
+      "anomaly_score": 18.65,
       "label": "watch"
     }
   ],
