@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-30T15:51:54.466539+00:00",
+  "generated_at": "2026-04-30T16:59:38.757551+00:00",
   "model_metrics": {
     "status": "ok",
     "model": "lightgbm",
@@ -113,9 +113,9 @@
   },
   "cluster_counts": {},
   "totals": {
-    "snapshots": 63,
+    "snapshots": 83,
     "wallet_events": 0,
-    "labeled_outcomes": 5
+    "labeled_outcomes": 9
   },
   "top_signals": [
     {
@@ -217,6 +217,20 @@
       "label": "watch"
     },
     {
+      "snapshot_id": 80,
+      "ts": "2026-04-30T16:54:02+00:00",
+      "chain": "solana",
+      "address": "3kbUd3V2wdU3bEuc9DbCMT3TSk9LY6BCmDnT7NrhKRW8",
+      "symbol": "BlueBuck",
+      "ml_prob": 0.0019612158489459605,
+      "ml_direction": "down",
+      "ml_edge": 0.996077568302108,
+      "pump_score": 25.8,
+      "dump_score": 14.5,
+      "anomaly_score": 95.09,
+      "label": "anomaly_watch"
+    },
+    {
       "snapshot_id": 60,
       "ts": "2026-04-30T15:45:13+00:00",
       "chain": "ethereum",
@@ -228,6 +242,20 @@
       "pump_score": 13.39,
       "dump_score": 0.0,
       "anomaly_score": 17.19,
+      "label": "watch"
+    },
+    {
+      "snapshot_id": 77,
+      "ts": "2026-04-30T16:54:02+00:00",
+      "chain": "solana",
+      "address": "9UJS9F2Uf65URVUQqQFk7TmtDcenSco4EXpYvWqHpump",
+      "symbol": "D'oh",
+      "ml_prob": 0.0023940691051650715,
+      "ml_direction": "down",
+      "ml_edge": 0.9952118617896698,
+      "pump_score": 30.0,
+      "dump_score": 8.27,
+      "anomaly_score": 42.87,
       "label": "watch"
     },
     {
@@ -270,6 +298,34 @@
       "pump_score": 30.0,
       "dump_score": 13.17,
       "anomaly_score": 50.48,
+      "label": "watch"
+    },
+    {
+      "snapshot_id": 79,
+      "ts": "2026-04-30T16:54:02+00:00",
+      "chain": "solana",
+      "address": "6WjU6NCRRpmMuUigCaUUTjcUggppcsBQxk4iv992pump",
+      "symbol": "FAST",
+      "ml_prob": 0.0028212989837150416,
+      "ml_direction": "down",
+      "ml_edge": 0.99435740203257,
+      "pump_score": 30.0,
+      "dump_score": 13.63,
+      "anomaly_score": 51.21,
+      "label": "watch"
+    },
+    {
+      "snapshot_id": 82,
+      "ts": "2026-04-30T16:54:02+00:00",
+      "chain": "solana",
+      "address": "GBzDFgktc8CRabNjm8L2q3x6Q5tM8tetSMi8W9MDpump",
+      "symbol": "K2",
+      "ml_prob": 0.0028212989837150416,
+      "ml_direction": "down",
+      "ml_edge": 0.99435740203257,
+      "pump_score": 30.0,
+      "dump_score": 14.59,
+      "anomaly_score": 52.69,
       "label": "watch"
     },
     {
@@ -411,62 +467,6 @@
       "dump_score": 0.0,
       "anomaly_score": 80.89,
       "label": "whale_accumulation"
-    },
-    {
-      "snapshot_id": 54,
-      "ts": "2026-04-30T15:45:13+00:00",
-      "chain": "ethereum",
-      "address": "0x3e76dd57e649a263a532cc9bcc58b32a065fb2a4",
-      "symbol": "ACN",
-      "ml_prob": 0.004928710605888216,
-      "ml_direction": "down",
-      "ml_edge": 0.9901425787882235,
-      "pump_score": 2.81,
-      "dump_score": 0.0,
-      "anomaly_score": 3.21,
-      "label": "watch"
-    },
-    {
-      "snapshot_id": 9,
-      "ts": "2026-04-30T11:18:02+00:00",
-      "chain": "arbitrum",
-      "address": "0xcab59a10d5fa4c8aba5d1da3f90ab741a78969dd",
-      "symbol": "HAMAHA",
-      "ml_prob": 0.005256030095908402,
-      "ml_direction": "down",
-      "ml_edge": 0.9894879398081832,
-      "pump_score": 0.0,
-      "dump_score": 0.0,
-      "anomaly_score": 0.0,
-      "label": "watch"
-    },
-    {
-      "snapshot_id": 33,
-      "ts": "2026-04-30T13:49:02+00:00",
-      "chain": "solana",
-      "address": "9K8sSKNh9NHTHuVRiGiB56sJdPFEAMchN6DsKu4Kpump",
-      "symbol": "GMGN",
-      "ml_prob": 0.00714780441555466,
-      "ml_direction": "down",
-      "ml_edge": 0.9857043911688906,
-      "pump_score": 30.0,
-      "dump_score": 0.06,
-      "anomaly_score": 34.82,
-      "label": "watch"
-    },
-    {
-      "snapshot_id": 43,
-      "ts": "2026-04-30T15:45:13+00:00",
-      "chain": "solana",
-      "address": "2MU93nLHhDsHzgEYBKbVbwLDd2pi71ubGp8SkEv9dZwQ",
-      "symbol": "SPC",
-      "ml_prob": 0.008598810111149118,
-      "ml_direction": "down",
-      "ml_edge": 0.9828023797777018,
-      "pump_score": 1.91,
-      "dump_score": 6.18,
-      "anomaly_score": 22.25,
-      "label": "watch"
     }
   ],
   "top_patterns": []

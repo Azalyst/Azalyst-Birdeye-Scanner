@@ -1,0 +1,5 @@
+evaluated_ts,chain,address,symbol,label,predicted_direction,entry_price,current_price,return_pct,target_pct,horizon_min,is_true,reasons
+2026-04-30T16:54:54+00:00,ethereum,0xf280b16ef293d8e534e370794ef26bf312694126,ASTEROID,whale_accumulation,up,0.0003302,0.0003602,9.0854,10.0,60,False,predicted_up;return_9.09pct;target_10.00pct;label_whale_accumulation;not_confirmed
+2026-04-30T16:54:54+00:00,solana,7cAAGvthKhfVHbXmZgHND4LXyqXezMhQ3M3z2ugApump,BLIGHTER,anomaly_watch,down,5.87e-07,5.87e-07,0.0,10.0,60,False,predicted_down;return_0.00pct;target_10.00pct;label_anomaly_watch;not_confirmed
+2026-04-30T16:54:55+00:00,solana,A5z6RGnXLRpPLzA9vfyVhKK9dDf2TqFBuSKhNVjRjQYs,מלו,anomaly_watch,up,3.416e-05,0.0001416,314.5199,10.0,60,True,predicted_up;return_314.52pct;target_10.00pct;label_anomaly_watch;pump_confirmed
+2026-04-30T16:54:55+00:00,solana,2LUZGzSprX6DJQGKGaXvGSYnuf4xHfCuJCeeKHfymoon,disbelief,anomaly_watch,up,0.0001225,0.0001085,-11.4286,10.0,60,False,predicted_up;return_-11.43pct;target_10.00pct;label_anomaly_watch;not_confirmed
