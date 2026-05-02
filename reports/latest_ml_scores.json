@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-05-02T05:59:11.906491+00:00",
+  "generated_at": "2026-05-02T07:38:04.571891+00:00",
   "model_metrics": {
     "status": "ok",
     "model": "lightgbm",
@@ -113,9 +113,9 @@
   },
   "cluster_counts": {},
   "totals": {
-    "snapshots": 536,
+    "snapshots": 541,
     "wallet_events": 0,
-    "labeled_outcomes": 80
+    "labeled_outcomes": 81
   },
   "top_signals": [
     {
