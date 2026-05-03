@@ -8,6 +8,7 @@ load_dotenv()
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from tools import execute_tool, TOOLS
+from agent.explain_mode import format_explain_response
 
 NIM_API_KEY = os.environ.get("NIM_API_KEY")
 PRIMARY_MODEL = "deepseek-ai/deepseek-v4-pro"
@@ -67,7 +68,7 @@ def parse_tool_call(content: str):
         return None, None
 
 
-def run_agent(task: str) -> str:
+def run_agent(task: str, explain: bool = False) -> str:
     print(f"Task: {task}")
     system_prompt = get_system_prompt()
     messages = [
@@ -117,6 +118,8 @@ def run_agent(task: str) -> str:
 
         # ── PRIORITY 2: final answer ──────────────────────────────────────
         if "Final Answer:" in content:
+            if explain:
+                content = format_explain_response(content, {})
             output_path = extract_output_path(task)
             save_output(output_path, content)
             return content
@@ -132,4 +135,7 @@ def run_agent(task: str) -> str:
 
 if __name__ == "__main__":
     task = sys.argv[1] if len(sys.argv) > 1 else "list files in current directory"
-    run_agent(task)
+    explain = "--explain" in sys.argv
+    if explain:
+        task = task.replace("--explain", "").strip()
+    run_agent(task, explain=explain)

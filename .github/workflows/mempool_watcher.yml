@@ -1,0 +1,18 @@
+name: Mempool Watcher
+on:
+  schedule:
+    - cron: '*/2 * * * *'
+  workflow_dispatch:
+jobs:
+  watch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - run: pip install -r requirements.txt
+      - name: Run mempool watcher
+        env:
+          HELIUS_API_KEY: ${{ secrets.HELIUS_API_KEY }}
+        run: python scanner/mempool_watcher.py

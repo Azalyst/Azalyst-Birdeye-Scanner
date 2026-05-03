@@ -9,6 +9,7 @@ from __future__ import annotations
 import os
 import time
 import logging
+import yaml
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 
@@ -734,6 +735,13 @@ class AzalystTracker:
                  min_whale_usd: float = 10_000.0) -> None:
         self.api = AzalystAPI(api_key=api_key)
         self.min_whale_usd = min_whale_usd
+        self.chain_whale_thresholds = {}
+        try:
+            with open("chain_config.yaml") as f:
+                config = yaml.safe_load(f)
+                self.chain_whale_thresholds = config.get("min_whale_usd", {})
+        except Exception:
+            pass
         logger.info("AzalystTracker initialized (min_whale_usd=%s)", min_whale_usd)
 
     # ------------------------------------------------------------------
@@ -742,6 +750,7 @@ class AzalystTracker:
         Track a wallet's recent activity and holdings.
         Returns a summary dict.
         """
+        min_usd = self.chain_whale_thresholds.get(chain.lower(), self.min_whale_usd)
         portfolio = self.api.get_wallet_portfolio(wallet, chain)
         pnl = self.api.get_wallet_pnl(wallet, chain)
         txs = self.api.get_trader_txs(wallet, chain, limit=20)
@@ -754,7 +763,7 @@ class AzalystTracker:
             if swap:
                 for t in swap.get("tokenInputs", []) + swap.get("tokenOutputs", []):
                     val = max(val, _safe_float(t.get("tokenAmount", 0)))
-            if val >= self.min_whale_usd:
+            if val >= min_usd:
                 large_txs.append({
                     "signature": tx.get("signature", ""),
                     "timestamp": tx.get("timestamp", 0),

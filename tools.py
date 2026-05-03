@@ -6,6 +6,9 @@ Full Azalyst Alpha Scanner tool set with multi-chain support.
 import subprocess
 import os
 import sys
+import json
+
+from scanner.deployer_reputation import check_deployer
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
@@ -31,6 +34,7 @@ if AZALYST_AVAILABLE:
         "check_token_security", "get_new_listings", "get_token_creation_info",
         "get_holder_list", "get_wallet_pnl_details", "get_trader_txs",
         "get_ohlcv", "get_wallet_token_list", "get_wallet_tx_list",
+        "check_deployer",
     ])
 
 MAX_OUTPUT = 8000
@@ -238,6 +242,10 @@ def execute_tool(tool_name: str, args: dict) -> str:
             page_size=args.get("page_size", 20),
             api_key=key,
         )
+
+    if tool_name == "check_deployer":
+        result = check_deployer(args.get("chain", "solana"), args.get("token_address", ""))
+        return json.dumps(result)
 
     return (
         f"Unknown tool: '{tool_name}'.\n"
