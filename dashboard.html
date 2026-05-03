@@ -21,6 +21,10 @@ body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradi
 .tab.active{color:#000;background:#ff6600}
 .topbar-right{display:flex;align-items:center;gap:8px}
 #clock{font-size:10px;color:#444;letter-spacing:.06em}
+#macroRegime{font-size:10px;font-weight:700;text-transform:uppercase;margin-left:6px}
+#macroRegime.risk-on{color:#00dd33}
+#macroRegime.risk-off{color:#cc2200}
+#macroRegime.neutral{color:#888}
 .offline-badge{font-size:9px;color:#553300;letter-spacing:.1em}
 .live-badge{font-size:9px;color:#00dd33;letter-spacing:.1em}
 .stale-badge{font-size:9px;color:#cc7700;letter-spacing:.1em}
@@ -87,9 +91,12 @@ input.repo-in:focus{border-color:#ff6600}
 .p-fail{background:rgba(204,34,0,.12);color:#cc2200}
 .p-run{background:rgba(59,158,255,.1);color:#60a0ff}
 .p-nu{background:rgba(204,119,0,.1);color:#cc7700}
+.p-scam{background:rgba(255,68,68,.15);color:#ff4444}
 .badge{display:inline-flex;align-items:center;justify-content:center;min-width:14px;height:14px;padding:0 3px;font-size:8px;background:#111;color:#555;margin-left:4px}
 .badge.live{background:#0a1a0a;color:#00dd33}
 .badge.warn{background:#1a0000;color:#ff4444}
+.ml-prob-cell{font-size:10px;color:#ff9900;display:flex;align-items:center;gap:4px;width:55px;justify-content:flex-end}
+.prob-bar{display:inline-block;height:3px;background:#ff6600;border-radius:1px}
 .heatmap{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;padding:6px}
 .hm-cell{background:#050505;border:1px solid #1a1a1a;padding:10px 12px;position:relative}
 .hm-cell.dim{opacity:.35}
@@ -141,13 +148,15 @@ input.repo-in:focus{border-color:#ff6600}
       <button class="tab" onclick="tab('ml',this)">ML<span class="badge" id="bML">—</span></button>
       <button class="tab" onclick="tab('chains',this)">Chain Map</button>
       <button class="tab" onclick="tab('feed',this)">Live Feed<span class="badge live" id="bFeed">—</span></button>
+      <button class="tab" onclick="tab('mempool',this)">Mempool<span class="badge" id="bMempool">—</span></button>
       <button class="tab" onclick="tab('reports',this)">Reports<span class="badge" id="bReports">—</span></button>
       <button class="tab" onclick="tab('ops',this)">System</button>
     </div>
   </div>
   <div class="topbar-right">
     <span id="clock">--:--:-- IST</span>
-    <span id="dataStatus" class="offline-badge">● OFFLINE</span>
+    <span id="macroRegime" class="neutral">NEUTRAL</span>
+    <span id="dataStatus" class="offline-badge">OFFLINE</span>
     <span id="countdown">—</span>
     <input class="repo-in" id="repoIn" placeholder="owner/repository" value="Azalyst/Azalyst-Alpha-Scanner"/>
     <input class="repo-in" id="tokenIn" placeholder="PAT (private)" type="password" style="width:130px"/>
@@ -158,7 +167,7 @@ input.repo-in:focus{border-color:#ff6600}
 <div class="tape">
   <div class="tape-label">AZALYST</div>
   <div class="tape-track">
-    <div class="tape-inner" id="tapeInner"><span class="tape-item tape-sep">· awaiting scan data ·</span></div>
+    <div class="tape-inner" id="tapeInner"><span class="tape-item tape-sep"> awaiting scan data </span></div>
   </div>
 </div>
 
@@ -174,11 +183,11 @@ input.repo-in:focus{border-color:#ff6600}
   <div class="g32">
     <div>
       <div class="sh"><span class="sh-label">Pump Signals</span><span class="sh-meta" id="pumpMeta">sorted by confidence</span></div>
-      <div class="panel"><div class="ph"><span>Chain / Token / Indicators / Conf / Signal</span><span id="pumpCount">0</span></div><div id="pumpList"><div class="empty">Load a repository to see signals.</div></div></div>
+      <div class="panel"><div class="ph"><span>Chain / Token / Indicators / Conf / ML Prob / Signal</span><span id="pumpCount">0</span></div><div id="pumpList"><div class="empty">Load a repository to see signals.</div></div></div>
     </div>
     <div>
       <div class="sh"><span class="sh-label">Dump Warnings</span></div>
-      <div class="panel"><div class="ph"><span>Chain / Token / Conf / Signal</span><span id="dumpCount">0</span></div><div id="dumpList"><div class="empty">—</div></div></div>
+      <div class="panel"><div class="ph"><span>Chain / Token / Conf / ML Prob / Signal</span><span id="dumpCount">0</span></div><div id="dumpList"><div class="empty">—</div></div></div>
     </div>
   </div>
 </div>
@@ -188,6 +197,10 @@ input.repo-in:focus{border-color:#ff6600}
   <div class="panel"><div class="ph"><span>Chain / Token / Type / Wallet / Value</span><span id="whaleCount">0</span></div><div id="whaleList"><div class="empty">No data yet.</div></div></div>
 </div>
 
+<div class="page" id="tab-gems">
+  <div class="sh"><span class="sh-label">Hidden Gems</span><span class="sh-meta">age &lt;24h · LP &gt;$2K · vol1H &gt;$10K</span></div>
+  <div class="panel"><div class="ph"><span>Chain / Token / Score / Metrics / Rating</span><span id="gemCount">0</span></div><div id="gemList"><div class="empty">No data yet.</div></div></div>
+</div>
 
 <div class="page" id="tab-security">
   <div class="sh"><span class="sh-label">Security Alerts</span><span class="sh-meta">high-risk only - score >=60 or multiple risk flags</span></div>
@@ -216,11 +229,6 @@ input.repo-in:focus{border-color:#ff6600}
   </div>
 </div>
 
-<div class="page" id="tab-gems">
-  <div class="sh"><span class="sh-label">Hidden Gems</span><span class="sh-meta">age &lt;24h · LP &gt;$2K · vol1H &gt;$10K</span></div>
-  <div class="panel"><div class="ph"><span>Chain / Token / Score / Metrics / Rating</span><span id="gemCount">0</span></div><div id="gemList"><div class="empty">No data yet.</div></div></div>
-</div>
-
 <div class="page" id="tab-chains">
   <div class="sh"><span class="sh-label">Chain Activity Heatmap</span><span class="sh-meta">pump/dump distribution per chain</span></div>
   <div class="panel"><div class="ph">Signal activity across all scanned chains</div><div class="heatmap" id="chainMap"><div class="empty" style="grid-column:1/-1">Load a repository first.</div></div></div>
@@ -237,6 +245,11 @@ input.repo-in:focus{border-color:#ff6600}
       <div class="panel"><div class="ph">Workflow / Status / Duration</div><div id="runList"><div class="empty">—</div></div></div>
     </div>
   </div>
+</div>
+
+<div class="page" id="tab-mempool">
+  <div class="sh"><span class="sh-label">Pending Whale Transactions</span><span class="sh-meta" id="mempoolMeta">updated every 2 min</span></div>
+  <div class="panel"><div class="ph"><span>Chain / Token / Value / From / Estimated Time</span></div><div id="mempoolList"><div class="empty">No pending whale transactions.</div></div></div>
 </div>
 
 <div class="page" id="tab-reports">
@@ -285,7 +298,7 @@ input.repo-in:focus{border-color:#ff6600}
 </div>
 
 <script>
-const S={repo:'Azalyst/Azalyst-Alpha-Scanner',token:'',runs:[],reports:[],parsed:null,feed:[],outcomes:[],ml:null,refreshTimer:null,countdown:60};
+const S={repo:'Azalyst/Azalyst-Alpha-Scanner',token:'',runs:[],reports:[],parsed:null,feed:[],outcomes:[],ml:null,refreshTimer:null,countdown:60,mempool:[]};
 const SUPPORTED_CHAINS=['solana','ethereum','base','arbitrum','bnb','avalanche','polygon','optimism','zksync'];
 
 function updateClock(){const n=new Date(),ist=new Date(n.getTime()+(5.5*3600000));const h=ist.getUTCHours().toString().padStart(2,'0'),m=ist.getUTCMinutes().toString().padStart(2,'0'),s=ist.getUTCSeconds().toString().padStart(2,'0');document.getElementById('clock').textContent=`${h}:${m}:${s} IST`;}
@@ -310,10 +323,14 @@ function parseQuantSignals(data){
     const ps=parseFloat(s.pump_score||0),ds=parseFloat(s.dump_score||0),as2=parseFloat(s.anomaly_score||0),rs=parseFloat(s.risk_score||0);
     const riskFactors=reasons.filter(x=>String(x).includes('risk_')||String(x).includes('mintable')||String(x).includes('freeze')||String(x).includes('holder'));
     const wn=parseFloat(m.whale_net_usd||0);seen.add(chain);
+    const mlProb = s.ml_prob != null ? parseFloat(s.ml_prob) : null;
+    const mlDir = s.ml_direction || '';
+    const scamFlag = s.scam_flag || 0;
+    const scamReasons = s.scam_reasons || [];
     if(s.label==='pump_candidate'||s.label==='whale_accumulation'||ps>=50)
-      r.pumps.push({chain,token,confidence:ps/100,indicators:reasons,address:s.address,label:s.label});
+      r.pumps.push({chain,token,confidence:ps/100,indicators:reasons,address:s.address,label:s.label,mlProb,mlDir,scamFlag,scamReasons});
     if(s.label==='dump_risk'||ds>=50)
-      r.dumps.push({chain,token,confidence:ds/100,indicators:reasons,address:s.address,label:s.label});
+      r.dumps.push({chain,token,confidence:ds/100,indicators:reasons,address:s.address,label:s.label,mlProb,mlDir,scamFlag,scamReasons});
     if(Math.abs(wn)>=10000||reasons.some(x=>String(x).includes('whale_')))
       r.whales.push({chain,token,value:Math.abs(wn),type:wn>=0?'BUY':'SELL',address:s.address||''});
     if(s.label==='pump_candidate'||s.label==='anomaly_watch'||as2>=55||ps>=45)
@@ -361,8 +378,30 @@ function renderTicker(intel){
   ti.innerHTML=(items+items)||'<span class="tape-item tape-sep">· awaiting scan data ·</span>';
 }
 
+function renderMempool(){
+  const el = document.getElementById('mempoolList');
+  if(!S.mempool||!S.mempool.length){el.innerHTML='<div class="empty">No pending whale transactions.</div>';return;}
+  const rows = S.mempool.map(tx=>{
+    const chain = (tx.chain||'').toLowerCase();
+    return `<div class="row">${ctag(chain)}<span class="tok">${tx.symbol||'?'}</span><span class="val">${usd(tx.value_usd)}</span><span class="addr">${tx.from?tx.from.slice(0,8)+'…'+tx.from.slice(-5):'—'}</span><span class="addr">${tx.est_time||'pending'}</span></div>`;
+  }).join('');
+  el.innerHTML = rows;
+  document.getElementById('bMempool').textContent = S.mempool.length;
+}
+
+async function loadMempool(){
+  try{
+    const r = await ghRaw('reports/latest_mempool.json');
+    const data = await r.json();
+    S.mempool = (data.transactions||[]).slice(0,20);
+  }catch(e){S.mempool=[];}
+  renderMempool();
+}
+
 function renderAll(intel){
   if(!intel)return;
+  // ... (keep all original rendering code here, identical to original dashboard) ...
+  // Insert new rendering for scam badges and ML prob while keeping original structure
   const scannedChains=intel.chains?.length?intel.chains:(intel.filters?.scan_chains||[]).map(c=>String(c||'unknown').toLowerCase());
   const scannedSet=new Set(scannedChains);
   document.getElementById('sPump').textContent=intel.pumps.length||'0';
@@ -384,16 +423,45 @@ function renderAll(intel){
   document.getElementById('opsUniverse').textContent=scannedChains.length&&scannedChains.length<SUPPORTED_CHAINS.length?'Rotating batch universe':'Open multi-chain universe';
   document.getElementById('sbRepo').innerHTML=`REPO <span class="sb-val">${S.repo}</span>`;
 
+  // Macro regime calculation
+  const totalSig = intel.pumps.length + intel.dumps.length;
+  if(totalSig > 0){
+    const pumpRatio = intel.pumps.length / totalSig;
+    const dumpRatio = intel.dumps.length / totalSig;
+    let regime = 'NEUTRAL', cls = 'neutral';
+    if(pumpRatio > 0.6){ regime = 'RISK-ON'; cls = 'risk-on'; }
+    else if(dumpRatio > 0.6){ regime = 'RISK-OFF'; cls = 'risk-off'; }
+    document.getElementById('macroRegime').textContent = regime;
+    document.getElementById('macroRegime').className = cls;
+  } else {
+    document.getElementById('macroRegime').textContent = 'NEUTRAL';
+    document.getElementById('macroRegime').className = 'neutral';
+  }
+
   document.getElementById('pumpCount').textContent=intel.pumps.length;
+  // Pump list with ML prob and scam badge
   document.getElementById('pumpList').innerHTML=intel.pumps.length
-    ?intel.pumps.slice(0,15).map(p=>`<div class="row">${ctag(p.chain)}<span class="tok">${p.token}</span><span class="ind">${p.indicators.join(' · ')||'—'}</span><div class="conf-wrap"><div class="conf-n">${Math.round(p.confidence*100)}%</div><div class="conf-bar"><div class="cf-p" style="width:${p.confidence*100}%"></div></div></div><span class="sig-p">PUMP</span></div>`).join('')
+    ?intel.pumps.slice(0,15).map(p=>{
+      const scamBadge = p.scamFlag ? '<span class="pill p-scam">SCAM</span> ' : '';
+      const mlProbCells = p.mlProb != null
+        ? `<div class="ml-prob-cell"><span class="prob-bar" style="width:${Math.round(p.mlProb*100)}%"></span>${Math.round(p.mlProb*100)}%</div>`
+        : '<span class="addr">—</span>';
+      return `<div class="row">${ctag(p.chain)}<span class="tok">${p.token}</span><span class="ind">${p.indicators.join(' · ')||'—'}</span><div class="conf-wrap"><div class="conf-n">${Math.round(p.confidence*100)}%</div><div class="conf-bar"><div class="cf-p" style="width:${p.confidence*100}%"></div></div></div>${mlProbCells}${scamBadge}<span class="sig-p">PUMP</span></div>`;
+    }).join('')
     :'<div class="empty">No pump signals in latest scan.</div>';
 
   document.getElementById('dumpCount').textContent=intel.dumps.length;
   document.getElementById('dumpList').innerHTML=intel.dumps.length
-    ?intel.dumps.slice(0,10).map(d=>`<div class="row">${ctag(d.chain)}<span class="tok">${d.token}</span><span class="ind">${d.indicators.join(' · ')||'—'}</span><div class="conf-wrap"><div class="conf-n">${Math.round(d.confidence*100)}%</div><div class="conf-bar"><div class="cf-d" style="width:${d.confidence*100}%"></div></div></div><span class="sig-d">DUMP</span></div>`).join('')
+    ?intel.dumps.slice(0,10).map(d=>{
+      const mlProbCells = d.mlProb != null
+        ? `<div class="ml-prob-cell"><span class="prob-bar" style="width:${Math.round(d.mlProb*100)}%"></span>${Math.round(d.mlProb*100)}%</div>`
+        : '<span class="addr">—</span>';
+      const scamBadge = d.scamFlag ? '<span class="pill p-scam">SCAM</span> ' : '';
+      return `<div class="row">${ctag(d.chain)}<span class="tok">${d.token}</span><span class="ind">${d.indicators.join(' · ')||'—'}</span><div class="conf-wrap"><div class="conf-n">${Math.round(d.confidence*100)}%</div><div class="conf-bar"><div class="cf-d" style="width:${d.confidence*100}%"></div></div></div>${mlProbCells}${scamBadge}<span class="sig-d">DUMP</span></div>`;
+    }).join('')
     :'<div class="empty">No dump warnings.</div>';
 
+  // Whales, gems, security, chain heatmap, etc. – keep exactly as original (unchanged)
   document.getElementById('whaleCount').textContent=intel.whales.length;
   document.getElementById('whaleList').innerHTML=intel.whales.length
     ?intel.whales.map(w=>`<div class="row">${ctag(w.chain)}<span class="tok">${w.token||'—'}</span><span class="${w.type==='BUY'?'sig-p':'sig-d'}">${w.type}</span><span class="addr">${w.address?w.address.slice(0,8)+'…'+w.address.slice(-5):'—'}</span><span class="val">${usd(w.value)}</span></div>`).join('')
@@ -431,7 +499,7 @@ function renderML(){
   set('mlEvents',(tot.wallet_events||0).toLocaleString());set('mlSnaps','snaps: '+(tot.snapshots||0).toLocaleString());
   set('mlClusters',Object.entries(clusters).map(([k,v])=>`${k}:${v}`).join(' · ')||'—');set('mlPatCount',pats.length);set('mlSigCount',sigs.length);set('mlPatListCount',pats.length);
   document.getElementById('mlSigList').innerHTML=sigs.length?sigs.map(s=>`<div class="row"><span class="addr">${(s.chain||'').toUpperCase()} — ${s.symbol||'?'}</span><span class="addr">${(Number(s.ml_prob)*100).toFixed(1)}%</span><span class="pill ${s.ml_direction==='up'?'p-ok':s.ml_direction==='down'?'p-fail':'p-run'}">${(s.ml_direction||'—').toUpperCase()}</span><span class="addr">${s.label||''}</span></div>`).join(''):'<div class="empty">No ML scores in the last 24h.</div>';
-  document.getElementById('mlPatList').innerHTML=pats.length?pats.map(p=>`<div class="row"><span class="addr" style="flex:1">${(p.prefix||[]).join(' → ')}</span><span class="addr">lift ${Number(p.lift||0).toFixed(2)}×</span><span class="addr">sup ${p.support}</span><span class="pill p-ok">${(Number(p.positive_rate||0)*100).toFixed(1)}%</span></div>`).join(''):'<div class="empty">Need more data to mine patterns.</div>';
+  document.getElementById('mlPatList').innerHTML=pats.length?pats.map(p=>`<div class="row"><span class="addr" style="flex:1">${(p.prefix||[]).join(' → ')}</span><span class="addr">lift ${Number(p.lift||0).toFixed(2)}x</span><span class="addr">sup ${p.support}</span><span class="pill p-ok">${(Number(p.positive_rate||0)*100).toFixed(1)}%</span></div>`).join(''):'<div class="empty">Need more data to mine patterns.</div>';
 }
 
 function renderReports(){
@@ -467,15 +535,15 @@ async function init(){
       if(or2){const po=parseReport(await(await ghRaw(or2.path)).text());S.outcomes=po.outcomes||[];S.parsed.outcomes=S.outcomes;}
       if(mr){try{S.ml=JSON.parse(await(await ghRaw(mr.path)).text());}catch(e){S.ml=null;}}
     }else{S.parsed=emptyIntel();}
-    renderAll(S.parsed);renderReports();renderML();setStatus('live');
+    renderAll(S.parsed);renderReports();renderML();await loadMempool();setStatus('live');
   }catch(e){setStatus('error');console.error(e);}
 }
 
 function setStatus(s){
   const dot=document.getElementById('liveDot'),lbl=document.getElementById('dataStatus');
-  if(s==='live'){dot.classList.add('on');lbl.textContent='● LIVE';lbl.className='live-badge';}
-  else if(s==='loading'){dot.classList.remove('on');lbl.textContent='● LOADING';lbl.className='stale-badge';}
-  else{dot.classList.remove('on');lbl.textContent='● ERROR';lbl.className='offline-badge';}
+  if(s==='live'){dot.classList.add('on');lbl.textContent='LIVE';lbl.className='live-badge';}
+  else if(s==='loading'){dot.classList.remove('on');lbl.textContent='LOADING';lbl.className='stale-badge';}
+  else{dot.classList.remove('on');lbl.textContent='ERROR';lbl.className='offline-badge';}
 }
 
 function startCountdown(){
