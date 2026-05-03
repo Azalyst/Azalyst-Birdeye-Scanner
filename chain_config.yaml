@@ -1,0 +1,17 @@
+# Per-chain configuration for Azalyst Alpha Scanner
+min_whale_usd:
+  solana: 5000
+  ethereum: 10000
+  base: 5000
+  arbitrum: 10000
+  bnb: 5000
+  avalanche: 5000
+  polygon: 5000
+  optimism: 5000
+  zksync: 5000
+
+min_liquidity_usd: 2000
+min_volume_1h: 10000
+max_age_hours: 24
+
+scam_refresh_interval_minutes: 60
